@@ -4,45 +4,91 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#111827">
-    <title>Calculadora</title>
+    <title>Meu Bolso</title>
     <link rel="stylesheet" href="style.css">
     <script src="script.js" defer></script>
 </head>
 <body>
-    <main class="calculator" aria-label="Calculadora">
-        <div class="display" aria-live="polite" aria-atomic="true">
-            <div class="expression" id="expression">&nbsp;</div>
-            <output id="display">0</output>
-        </div>
+    <main class="app">
+        <header class="topbar">
+            <a class="brand" href="#inicio" aria-label="Meu Bolso, início">
+                <span class="brand__icon">R$</span>
+                <span>Meu Bolso</span>
+            </a>
+            <p class="privacy">Seus dados ficam neste dispositivo</p>
+        </header>
 
-        <div class="keys">
-            <button class="key key--utility" data-action="percent" aria-label="Porcentagem">%</button>
-            <button class="key key--utility" data-action="clear-entry">CE</button>
-            <button class="key key--utility" data-action="clear">C</button>
-            <button class="key key--utility" data-action="backspace" aria-label="Apagar último dígito">⌫</button>
+        <section class="welcome" id="inicio">
+            <div>
+                <p class="eyebrow" id="current-month"></p>
+                <h1>Seu dinheiro,<br><span>sob controle.</span></h1>
+            </div>
+            <button class="button button--primary" type="button" id="new-transaction">+ Novo lançamento</button>
+        </section>
 
-            <button class="key" data-number="7">7</button>
-            <button class="key" data-number="8">8</button>
-            <button class="key" data-number="9">9</button>
-            <button class="key key--operator" data-operator="divide" aria-label="Dividir">÷</button>
+        <section class="summary" aria-label="Resumo financeiro">
+            <article class="balance-card">
+                <p>Saldo atual</p>
+                <strong id="balance">R$ 0,00</strong>
+                <span id="balance-message">Adicione um lançamento para começar.</span>
+            </article>
+            <article class="metric metric--income">
+                <span class="metric__icon">↗</span>
+                <div><p>Entradas</p><strong id="income">R$ 0,00</strong></div>
+            </article>
+            <article class="metric metric--expense">
+                <span class="metric__icon">↘</span>
+                <div><p>Saídas</p><strong id="expense">R$ 0,00</strong></div>
+            </article>
+        </section>
 
-            <button class="key" data-number="4">4</button>
-            <button class="key" data-number="5">5</button>
-            <button class="key" data-number="6">6</button>
-            <button class="key key--operator" data-operator="multiply" aria-label="Multiplicar">×</button>
+        <section class="content-grid">
+            <article class="panel transactions-panel">
+                <div class="panel__header">
+                    <div><h2>Últimos lançamentos</h2><p>Organize cada entrada e saída.</p></div>
+                    <select id="transaction-filter" aria-label="Filtrar lançamentos">
+                        <option value="all">Todos</option>
+                        <option value="income">Entradas</option>
+                        <option value="expense">Saídas</option>
+                    </select>
+                </div>
+                <ul class="transactions" id="transactions" aria-live="polite"></ul>
+                <div class="empty-state" id="empty-state">
+                    <span>☼</span>
+                    <h3>Nenhum lançamento ainda</h3>
+                    <p>Registre sua primeira entrada ou despesa.</p>
+                    <button class="button button--secondary" type="button" data-open-form>Adicionar lançamento</button>
+                </div>
+            </article>
 
-            <button class="key" data-number="1">1</button>
-            <button class="key" data-number="2">2</button>
-            <button class="key" data-number="3">3</button>
-            <button class="key key--operator" data-operator="subtract" aria-label="Subtrair">−</button>
-
-            <button class="key" data-action="sign" aria-label="Trocar sinal">+/−</button>
-            <button class="key" data-number="0">0</button>
-            <button class="key" data-action="decimal">,</button>
-            <button class="key key--operator" data-operator="add" aria-label="Somar">+</button>
-
-            <button class="key key--equals" data-action="calculate">=</button>
-        </div>
+            <aside class="panel insights-panel">
+                <div class="panel__header"><div><h2>Despesas por categoria</h2><p>Visão deste mês.</p></div></div>
+                <div class="chart" id="category-chart"></div>
+                <p class="chart-empty" id="chart-empty">As categorias aparecerão aqui.</p>
+                <div class="tip"><span>✦</span><p>Pequenos registros diários ajudam a enxergar para onde seu dinheiro vai.</p></div>
+            </aside>
+        </section>
     </main>
+
+    <dialog class="modal" id="transaction-modal" aria-labelledby="modal-title">
+        <form id="transaction-form" method="dialog">
+            <div class="modal__header">
+                <div><p class="eyebrow">Novo lançamento</p><h2 id="modal-title">Organize seu dinheiro</h2></div>
+                <button class="icon-button" type="button" id="close-modal" aria-label="Fechar">×</button>
+            </div>
+            <div class="type-switch" role="group" aria-label="Tipo de lançamento">
+                <button class="type-option is-selected" type="button" data-type="expense">Despesa</button>
+                <button class="type-option" type="button" data-type="income">Receita</button>
+            </div>
+            <input type="hidden" id="transaction-type" name="type" value="expense">
+            <label>Descrição<input id="description" name="description" type="text" placeholder="Ex.: Mercado" maxlength="50" required></label>
+            <div class="form-row">
+                <label>Categoria<select id="category" name="category" required></select></label>
+                <label>Valor<input id="amount" name="amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00" required></label>
+            </div>
+            <label>Data<input id="date" name="date" type="date" required></label>
+            <button class="button button--primary button--full" type="submit">Salvar lançamento</button>
+        </form>
+    </dialog>
 </body>
 </html>

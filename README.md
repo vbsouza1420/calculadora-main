@@ -1,47 +1,42 @@
-# Calculadora Moderna
+# Meu Bolso
 
-Uma calculadora simples, moderna e responsiva feita com HTML, CSS e JavaScript puro.
+Um gerenciador financeiro pessoal simples, moderno e responsivo. Registre receitas e despesas, acompanhe seu saldo e descubra para onde seu dinheiro está indo — tudo direto no navegador.
 
 ## Recursos
 
-- Operações de soma, subtração, multiplicação e divisão
-- Porcentagem, troca de sinal e números decimais
-- Histórico da operação exibido no visor
-- Tratamento para divisão por zero
-- Uso pelo teclado ou pelos botões na tela
+- Cadastro de receitas e despesas
+- Saldo, total de entradas e saídas calculados automaticamente
+- Categorias para organizar os lançamentos
+- Gráfico de despesas por categoria
+- Filtro por entradas, saídas ou todos os lançamentos
+- Exclusão de lançamentos
+- Dados salvos localmente no navegador, sem cadastro ou conta
 - Layout responsivo para celular e computador
-- Animações leves e botões com resposta rápida
 
 ## Como usar
 
-1. Baixe ou clone este repositório.
-2. Abra o arquivo `index.html` no navegador.
-3. Faça seus cálculos.
+1. Abra `index.html` no navegador.
+2. Clique em **Novo lançamento**.
+3. Escolha se é uma receita ou despesa, preencha os dados e salve.
+4. Acompanhe o resumo e as categorias na tela inicial.
 
-Também é possível usar o teclado:
-
-| Tecla | Ação |
-| --- | --- |
-| `0` a `9` | Digita números |
-| `+`, `-`, `*`, `/` | Operações matemáticas |
-| `Enter` ou `=` | Calcula o resultado |
-| `Backspace` | Apaga o último dígito |
-| `Esc` | Limpa toda a calculadora |
-| `Delete` | Limpa o número atual |
+> Os dados ficam salvos apenas no navegador e dispositivo usados. Ao limpar os dados de navegação, os lançamentos também podem ser apagados.
 
 ## Tecnologias
 
 - HTML5
 - CSS3
 - JavaScript
+- LocalStorage do navegador
 
-## Estrutura do projeto
+## Estrutura
 
 ```text
 calculadora-main/
 ├── index.html
 ├── style.css
-└── script.js
+├── script.js
+└── README.md
 ```
 
 ---
