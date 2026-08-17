@@ -15,7 +15,7 @@ const categories = {
 };
 
 let transactions = JSON.parse(localStorage.getItem(storageKey) || "[]");
-let selectedMonth = new Date().toISOString().slice(0, 7);
+let selectedMonth = "all";
 
 const formatMoney = (value) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 const formatDate = (date) => new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short" }).format(new Date(`${date}T12:00:00`));
@@ -104,6 +104,13 @@ function renderTransactions() {
         </li>`).join("");
     emptyState.hidden = filtered.length > 0;
     transactionList.hidden = filtered.length === 0;
+    if (filtered.length === 0) {
+        const hasTransactions = transactions.length > 0;
+        document.querySelector("#empty-title").textContent = hasTransactions ? "Nenhum lançamento encontrado" : "Nenhum lançamento ainda";
+        document.querySelector("#empty-message").textContent = hasTransactions
+            ? "Tente trocar o mês ou o tipo de lançamento no filtro."
+            : "Registre sua primeira entrada ou despesa.";
+    }
 }
 
 function render() { updateMonthFilter(); renderSummary(); renderTransactions(); renderChart(); }
