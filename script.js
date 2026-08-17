@@ -104,6 +104,7 @@ function renderTransactions() {
         </li>`).join("");
     emptyState.hidden = filtered.length > 0;
     emptyState.classList.toggle("is-hidden", filtered.length > 0);
+    emptyState.style.display = filtered.length > 0 ? "none" : "grid";
     transactionList.hidden = filtered.length === 0;
     if (filtered.length === 0) {
         const hasTransactions = transactions.length > 0;
