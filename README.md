@@ -10,6 +10,8 @@ Um gerenciador financeiro pessoal simples, moderno e responsivo. Registre receit
 - Gráfico de despesas por categoria
 - Filtro por entradas, saídas ou todos os lançamentos
 - Visão por mês ou por todo o histórico
+- Comparação de gastos com o mês anterior
+- Percentuais e destaque da maior categoria de despesa
 - Exclusão de lançamentos
 - Dados salvos localmente no navegador, sem cadastro ou conta
 - Layout responsivo para celular e computador

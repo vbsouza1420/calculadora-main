@@ -53,6 +53,20 @@ function transactionsForSelectedMonth() {
     return selectedMonth === "all" ? transactions : transactions.filter((item) => item.date.startsWith(selectedMonth));
 }
 
+function transactionsForMonth(month) {
+    return transactions.filter((item) => item.date.startsWith(month));
+}
+
+function previousMonth(month) {
+    const date = new Date(`${month}-01T12:00:00`);
+    date.setMonth(date.getMonth() - 1);
+    return date.toISOString().slice(0, 7);
+}
+
+function totalByType(items, type) {
+    return items.filter((item) => item.type === type).reduce((total, item) => total + item.amount, 0);
+}
+
 function setCategories(type) {
     category.innerHTML = categories[type].map((item) => `<option value="${item}">${item}</option>`).join("");
 }
@@ -65,8 +79,8 @@ function setType(type) {
 
 function renderSummary() {
     const visible = transactionsForSelectedMonth();
-    const income = visible.filter((item) => item.type === "income").reduce((total, item) => total + item.amount, 0);
-    const expense = visible.filter((item) => item.type === "expense").reduce((total, item) => total + item.amount, 0);
+    const income = totalByType(visible, "income");
+    const expense = totalByType(visible, "expense");
     const balance = income - expense;
     const availableBalance = Math.max(balance, 0);
     const debt = document.querySelector("#debt");
@@ -75,6 +89,26 @@ function renderSummary() {
     document.querySelector("#balance").textContent = formatMoney(availableBalance);
     debt.hidden = balance >= 0;
     debt.textContent = balance < 0 ? `Em aberto: ${formatMoney(Math.abs(balance))}` : "";
+    const comparison = document.querySelector("#month-comparison");
+    document.querySelector("#balance-label").textContent = selectedMonth === "all" ? "Saldo disponível" : `Saldo de ${monthLabel(selectedMonth)}`;
+    comparison.className = "balance-card__comparison";
+    if (selectedMonth === "all") {
+        comparison.textContent = "Escolha um mês para comparar seus gastos.";
+    } else {
+        const priorMonth = previousMonth(selectedMonth);
+        const priorExpense = totalByType(transactionsForMonth(priorMonth), "expense");
+        const difference = expense - priorExpense;
+        if (priorExpense === 0 && expense === 0) {
+            comparison.textContent = `Sem despesas em ${monthLabel(selectedMonth)}.`;
+        } else if (priorExpense === 0) {
+            comparison.textContent = `Primeiro mês com despesas registradas.`;
+        } else if (difference === 0) {
+            comparison.textContent = `Mesmo gasto de ${monthLabel(priorMonth)}.`;
+        } else {
+            comparison.textContent = `${formatMoney(Math.abs(difference))} ${difference > 0 ? "a mais" : "a menos"} que em ${monthLabel(priorMonth)}.`;
+            comparison.classList.add(difference > 0 ? "is-negative" : "is-positive");
+        }
+    }
     document.querySelector("#balance-message").textContent = visible.length
         ? balance >= 0 ? "Você está no caminho certo." : "Atenção: suas saídas superam as entradas."
         : "Adicione um lançamento para começar.";
@@ -85,10 +119,15 @@ function renderChart() {
     const totals = expenses.reduce((result, item) => ({ ...result, [item.category]: (result[item.category] || 0) + item.amount }), {});
     const entries = Object.entries(totals).sort((a, b) => b[1] - a[1]).slice(0, 5);
     const chart = document.querySelector("#category-chart");
+    const highlight = document.querySelector("#chart-highlight");
+    const total = expenses.reduce((sum, item) => sum + item.amount, 0);
     document.querySelector("#chart-empty").hidden = entries.length > 0;
-    chart.innerHTML = entries.map(([name, value]) => {
-        const total = expenses.reduce((sum, item) => sum + item.amount, 0);
-        return `<div class="chart__item"><span>${name}</span><strong>${formatMoney(value)}</strong><div class="chart__bar"><i style="width:${(value / total) * 100}%"></i></div></div>`;
+    document.querySelector("#chart-subtitle").textContent = selectedMonth === "all" ? "Visão de todo o histórico." : `Visão de ${monthLabel(selectedMonth)}.`;
+    highlight.hidden = entries.length === 0;
+    highlight.textContent = entries.length ? `Maior gasto: ${entries[0][0]} (${formatMoney(entries[0][1])})` : "";
+    chart.innerHTML = entries.map(([name, value], index) => {
+        const percentage = Math.round((value / total) * 100);
+        return `<div class="chart__item ${index === 0 ? "chart__item--top" : ""}"><span>${name}</span><strong>${formatMoney(value)} <small>${percentage}%</small></strong><div class="chart__bar"><i style="width:${percentage}%"></i></div></div>`;
     }).join("");
 }
 

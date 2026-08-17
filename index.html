@@ -33,10 +33,11 @@
 
         <section class="summary" aria-label="Resumo financeiro">
             <article class="balance-card">
-                <p>Saldo atual</p>
+                <p id="balance-label">Saldo disponível</p>
                 <strong id="balance">R$ 0,00</strong>
                 <span id="balance-message">Adicione um lançamento para começar.</span>
                 <span class="balance-card__debt" id="debt" hidden></span>
+                <span class="balance-card__comparison" id="month-comparison"></span>
             </article>
             <article class="metric metric--income">
                 <span class="metric__icon">↗</span>
@@ -68,7 +69,8 @@
             </article>
 
             <aside class="panel insights-panel">
-                <div class="panel__header"><div><h2>Despesas por categoria</h2><p>Visão deste mês.</p></div></div>
+                <div class="panel__header"><div><h2>Despesas por categoria</h2><p id="chart-subtitle">Visão do período selecionado.</p></div></div>
+                <p class="chart-highlight" id="chart-highlight" hidden></p>
                 <div class="chart" id="category-chart"></div>
                 <p class="chart-empty" id="chart-empty">As categorias aparecerão aqui.</p>
                 <div class="tip"><span>✦</span><p>Pequenos registros diários ajudam a enxergar para onde seu dinheiro vai.</p></div>
