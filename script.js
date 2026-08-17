@@ -90,6 +90,11 @@ function renderSummary() {
     debt.hidden = balance >= 0;
     debt.textContent = balance < 0 ? `Em aberto: ${formatMoney(Math.abs(balance))}` : "";
     const comparison = document.querySelector("#month-comparison");
+    document.querySelector("#dashboard-period").textContent = monthLabel(selectedMonth);
+    document.querySelector("#dashboard-title").textContent = selectedMonth === "all" ? "Resumo de todo o histórico" : `Resumo de ${monthLabel(selectedMonth)}`;
+    document.querySelector("#dashboard-description").textContent = selectedMonth === "all"
+        ? "Acompanhe a saúde das suas finanças ao longo do tempo."
+        : "Veja suas entradas, saídas e comparação com o mês anterior.";
     document.querySelector("#balance-label").textContent = selectedMonth === "all" ? "Saldo disponível" : `Saldo de ${monthLabel(selectedMonth)}`;
     comparison.className = "balance-card__comparison";
     if (selectedMonth === "all") {
