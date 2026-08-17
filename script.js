@@ -68,9 +68,13 @@ function renderSummary() {
     const income = visible.filter((item) => item.type === "income").reduce((total, item) => total + item.amount, 0);
     const expense = visible.filter((item) => item.type === "expense").reduce((total, item) => total + item.amount, 0);
     const balance = income - expense;
+    const availableBalance = Math.max(balance, 0);
+    const debt = document.querySelector("#debt");
     document.querySelector("#income").textContent = formatMoney(income);
     document.querySelector("#expense").textContent = formatMoney(expense);
-    document.querySelector("#balance").textContent = formatMoney(balance);
+    document.querySelector("#balance").textContent = formatMoney(availableBalance);
+    debt.hidden = balance >= 0;
+    debt.textContent = balance < 0 ? `Em aberto: ${formatMoney(Math.abs(balance))}` : "";
     document.querySelector("#balance-message").textContent = visible.length
         ? balance >= 0 ? "Você está no caminho certo." : "Atenção: suas saídas superam as entradas."
         : "Adicione um lançamento para começar.";
