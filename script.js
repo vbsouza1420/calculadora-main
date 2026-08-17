@@ -67,6 +67,61 @@ function totalByType(items, type) {
     return items.filter((item) => item.type === type).reduce((total, item) => total + item.amount, 0);
 }
 
+function polygonPoints(cx, cy, radius, sides) {
+    return Array.from({ length: sides }, (_, index) => {
+        const angle = -Math.PI / 2 + (index * Math.PI * 2) / sides;
+        return `${cx + Math.cos(angle) * radius},${cy + Math.sin(angle) * radius}`;
+    }).join(" ");
+}
+
+function renderTrendChart() {
+    const chart = document.querySelector("#trend-chart");
+    const endingMonth = selectedMonth === "all" ? new Date().toISOString().slice(0, 7) : selectedMonth;
+    const endingDate = new Date(`${endingMonth}-01T12:00:00`);
+    const series = Array.from({ length: 6 }, (_, index) => {
+        const date = new Date(endingDate);
+        date.setMonth(date.getMonth() - (5 - index));
+        const month = date.toISOString().slice(0, 7);
+        const records = transactionsForMonth(month);
+        return { month, income: totalByType(records, "income"), expense: totalByType(records, "expense") };
+    });
+    const max = Math.max(...series.flatMap((item) => [item.income, item.expense]), 1);
+    const x = (index) => 44 + (index * 472) / (series.length - 1);
+    const y = (value) => 182 - (value / max) * 136;
+    const path = (key) => series.map((item, index) => `${index ? "L" : "M"}${x(index)} ${y(item[key])}`).join(" ");
+    const labels = series.map((item, index) => `<text x="${x(index)}" y="211" text-anchor="middle" fill="#64748b" font-size="10">${new Intl.DateTimeFormat("pt-BR", { month: "short" }).format(new Date(`${item.month}-01T12:00:00`)).replace(".", "")}</text>`).join("");
+    const grid = [0, 1, 2, 3].map((index) => `<line x1="44" y1="${46 + index * 45}" x2="516" y2="${46 + index * 45}" stroke="#263247" stroke-dasharray="3 5"/>`).join("");
+    const circles = (key, color) => series.map((item, index) => `<circle cx="${x(index)}" cy="${y(item[key])}" r="3.5" fill="${color}" stroke="#0f172a" stroke-width="2"/>`).join("");
+    chart.innerHTML = `<defs><linearGradient id="incomeFill" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#34d399" stop-opacity=".28"/><stop offset="1" stop-color="#34d399" stop-opacity="0"/></linearGradient><linearGradient id="expenseFill" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#fb7185" stop-opacity=".25"/><stop offset="1" stop-color="#fb7185" stop-opacity="0"/></linearGradient></defs>${grid}<path d="${path("income")} L516 182 L44 182 Z" fill="url(#incomeFill)"/><path d="${path("expense")} L516 182 L44 182 Z" fill="url(#expenseFill)"/><path d="${path("income")}" fill="none" stroke="#34d399" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="${path("expense")}" fill="none" stroke="#fb7185" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>${circles("income", "#34d399")}${circles("expense", "#fb7185")}${labels}`;
+}
+
+function renderRadarChart() {
+    const chart = document.querySelector("#radar-chart");
+    const expenses = transactionsForSelectedMonth().filter((item) => item.type === "expense");
+    const totals = expenses.reduce((result, item) => ({ ...result, [item.category]: (result[item.category] || 0) + item.amount }), {});
+    const entries = Object.entries(totals).sort((a, b) => b[1] - a[1]).slice(0, 6);
+    if (entries.length === 0) {
+        chart.innerHTML = `<text x="210" y="145" text-anchor="middle" fill="#64748b" font-size="13">Adicione despesas para gerar o mapa.</text>`;
+        return;
+    }
+    const cx = 210; const cy = 142; const radius = 85; const sides = entries.length;
+    const max = entries[0][1];
+    const point = (index, value) => {
+        const angle = -Math.PI / 2 + (index * Math.PI * 2) / sides;
+        const size = (value / max) * radius;
+        return `${cx + Math.cos(angle) * size},${cy + Math.sin(angle) * size}`;
+    };
+    const axes = entries.map((_, index) => {
+        const angle = -Math.PI / 2 + (index * Math.PI * 2) / sides;
+        const labelX = cx + Math.cos(angle) * (radius + 35);
+        const labelY = cy + Math.sin(angle) * (radius + 35) + 4;
+        const anchor = Math.cos(angle) > .25 ? "start" : Math.cos(angle) < -.25 ? "end" : "middle";
+        return `<line x1="${cx}" y1="${cy}" x2="${cx + Math.cos(angle) * radius}" y2="${cy + Math.sin(angle) * radius}" stroke="#334155"/><text x="${labelX}" y="${labelY}" text-anchor="${anchor}" fill="#cbd5e1" font-size="10" font-weight="700">${entries[index][0].toUpperCase()}</text>`;
+    }).join("");
+    const rings = [1, .66, .33].map((scale) => `<polygon points="${polygonPoints(cx, cy, radius * scale, sides)}" fill="none" stroke="#263247"/>`).join("");
+    chart.innerHTML = `${rings}${axes}<polygon points="${entries.map(([_, value], index) => point(index, value)).join(" ")}" fill="rgba(251, 113, 133, .24)" stroke="#fb7185" stroke-width="3" stroke-linejoin="round"/>${entries.map(([_, value], index) => `<circle cx="${point(index, value).replace(",", '" cy="')}" r="3.5" fill="#fda4af"/>`).join("")}`;
+}
+
 function setCategories(type) {
     category.innerHTML = categories[type].map((item) => `<option value="${item}">${item}</option>`).join("");
 }
@@ -159,7 +214,7 @@ function renderTransactions() {
     }
 }
 
-function render() { updateMonthFilter(); renderSummary(); renderTransactions(); renderChart(); }
+function render() { updateMonthFilter(); renderSummary(); renderTrendChart(); renderRadarChart(); renderTransactions(); renderChart(); }
 
 function openModal() {
     form.reset();

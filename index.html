@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#111827">
     <title>Meu Bolso</title>
-    <link rel="stylesheet" href="style.css?v=20260817-2">
-    <script src="script.js?v=20260817-3" defer></script>
+    <link rel="stylesheet" href="style.css?v=20260817-3">
+    <script src="script.js?v=20260817-4" defer></script>
 </head>
 <body>
     <main class="app">
@@ -55,6 +55,19 @@
                 <article class="metric metric--expense">
                     <span class="metric__icon">↘</span>
                     <div><p>Saídas</p><strong id="expense">R$ 0,00</strong></div>
+                </article>
+            </div>
+            <div class="dashboard__charts">
+                <article class="analytics-card analytics-card--trend">
+                    <div class="analytics-card__header">
+                        <div><p class="eyebrow">Evolução</p><h3>Entradas x saídas</h3></div>
+                        <div class="chart-legend"><span><i class="legend-dot legend-dot--income"></i>Entradas</span><span><i class="legend-dot legend-dot--expense"></i>Saídas</span></div>
+                    </div>
+                    <svg class="trend-chart" id="trend-chart" viewBox="0 0 560 230" role="img" aria-label="Gráfico de entradas e saídas dos últimos seis meses"></svg>
+                </article>
+                <article class="analytics-card analytics-card--radar">
+                    <div class="analytics-card__header"><div><p class="eyebrow">Perfil</p><h3>Mapa de gastos</h3></div><span class="radar-badge">Categorias</span></div>
+                    <svg class="radar-chart" id="radar-chart" viewBox="0 0 420 300" role="img" aria-label="Gráfico radar de gastos por categoria"></svg>
                 </article>
             </div>
         </section>
