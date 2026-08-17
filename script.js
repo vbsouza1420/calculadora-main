@@ -103,6 +103,7 @@ function renderTransactions() {
             <button class="delete-button" type="button" data-delete="${item.id}" aria-label="Excluir ${item.description}">×</button>
         </li>`).join("");
     emptyState.hidden = filtered.length > 0;
+    emptyState.classList.toggle("is-hidden", filtered.length > 0);
     transactionList.hidden = filtered.length === 0;
     if (filtered.length === 0) {
         const hasTransactions = transactions.length > 0;
