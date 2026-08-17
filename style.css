@@ -81,17 +81,25 @@ button {
     font-size: 1.2rem;
     font-weight: 600;
     cursor: pointer;
-    transition: transform 100ms ease, background 150ms ease, box-shadow 150ms ease;
+    transform: scale(1);
+    transition:
+        transform 65ms ease-out,
+        background-color 55ms linear,
+        color 55ms linear;
+    will-change: transform;
+    touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
 }
 
 .key:hover {
     background: #29364b;
+    transform: scale(0.98);
 }
 
 .key:active,
 .key.is-pressed {
     transform: scale(0.94);
+    transition-duration: 25ms;
 }
 
 .key:focus-visible {
@@ -125,6 +133,13 @@ button {
 
 .key--equals:hover {
     background: linear-gradient(135deg, #7477f5, #5b52e8);
+    transform: scale(0.985);
+}
+
+.key--equals:active,
+.key--equals.is-pressed {
+    transform: scale(0.96);
+    transition-duration: 25ms;
 }
 
 @media (max-width: 390px) {
