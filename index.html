@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#111827">
+    <title>Calculadora</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <main class="calculator" aria-label="Calculadora">
+        <div class="display" aria-live="polite" aria-atomic="true">
+            <div class="expression" id="expression">&nbsp;</div>
+            <output id="display">0</output>
+        </div>
+
+        <div class="keys">
+            <button class="key key--utility" data-action="percent" aria-label="Porcentagem">%</button>
+            <button class="key key--utility" data-action="clear-entry">CE</button>
+            <button class="key key--utility" data-action="clear">C</button>
+            <button class="key key--utility" data-action="backspace" aria-label="Apagar último dígito">⌫</button>
+
+            <button class="key" data-number="7">7</button>
+            <button class="key" data-number="8">8</button>
+            <button class="key" data-number="9">9</button>
+            <button class="key key--operator" data-operator="divide" aria-label="Dividir">÷</button>
+
+            <button class="key" data-number="4">4</button>
+            <button class="key" data-number="5">5</button>
+            <button class="key" data-number="6">6</button>
+            <button class="key key--operator" data-operator="multiply" aria-label="Multiplicar">×</button>
+
+            <button class="key" data-number="1">1</button>
+            <button class="key" data-number="2">2</button>
+            <button class="key" data-number="3">3</button>
+            <button class="key key--operator" data-operator="subtract" aria-label="Subtrair">−</button>
+
+            <button class="key" data-action="sign" aria-label="Trocar sinal">+/−</button>
+            <button class="key" data-number="0">0</button>
+            <button class="key" data-action="decimal">,</button>
+            <button class="key key--operator" data-operator="add" aria-label="Somar">+</button>
+
+            <button class="key key--equals" data-action="calculate">=</button>
+        </div>
+    </main>
+</body>
+</html>
