@@ -23,7 +23,12 @@
                 <p class="eyebrow" id="current-month"></p>
                 <h1>Seu dinheiro,<br><span>sob controle.</span></h1>
             </div>
-            <button class="button button--primary" type="button" id="new-transaction">+ Novo lançamento</button>
+            <div class="welcome__actions">
+                <label class="month-picker">Mês selecionado
+                    <select id="month-filter" aria-label="Selecionar mês"></select>
+                </label>
+                <button class="button button--primary" type="button" id="new-transaction">+ Novo lançamento</button>
+            </div>
         </section>
 
         <section class="summary" aria-label="Resumo financeiro">
@@ -84,7 +89,7 @@
             <label>Descrição<input id="description" name="description" type="text" placeholder="Ex.: Mercado" maxlength="50" required></label>
             <div class="form-row">
                 <label>Categoria<select id="category" name="category" required></select></label>
-                <label>Valor<input id="amount" name="amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00" required></label>
+                <label>Valor<input id="amount" name="amount" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00" required></label>
             </div>
             <label>Data<input id="date" name="date" type="date" required></label>
             <button class="button button--primary button--full" type="submit">Salvar lançamento</button>
