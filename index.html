@@ -8,10 +8,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=20260817-12">
+    <link rel="stylesheet" href="style.css?v=20260817-13">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <script src="config.js?v=20260817-11" defer></script>
-    <script src="script.js?v=20260817-12" defer></script>
+    <script src="script.js?v=20260817-13" defer></script>
 </head>
 <body>
     <div class="promo-bar"><span><b>GASTOS FINANCEIROS</b> · CONTROLE FINANCEIRO SEGURO</span><span>CONTA OPCIONAL · SEM ANÚNCIO · SINCRONIZAÇÃO PROTEGIDA <b>→</b></span></div>
@@ -113,6 +113,7 @@
                     <input id="budget-amount" type="text" inputmode="decimal" placeholder="Limite mensal" required>
                     <button class="button button--primary" type="submit">Salvar limite</button>
                 </form>
+                <div class="budget-overview" id="budget-overview"></div>
                 <div class="budget-list" id="budget-list"></div>
             </article>
             <article class="panel workspace-card">
@@ -157,12 +158,12 @@
                     <button class="button button--primary" type="submit">Salvar configuração</button>
                 </form>
                 <div class="invoice-summary">
-                    <div class="invoice-total"><span>Fatura do ciclo</span><strong id="invoice-total">R$ 0,00</strong><small id="invoice-status">Configure seu cartão</small></div>
+                    <div class="invoice-total"><span>Fatura do ciclo</span><strong id="invoice-total">R$ 0,00</strong><small id="invoice-status">Configure seu cartão</small><button class="invoice-paid-button" id="invoice-paid" type="button">Marcar como paga</button></div>
                     <div class="invoice-metric"><span>Limite disponível</span><strong id="invoice-available">R$ 0,00</strong></div>
                     <div class="invoice-metric"><span>Vencimento</span><strong id="invoice-due-date">—</strong></div>
                     <div class="invoice-progress"><i id="invoice-progress"></i></div>
                 </div>
-                <aside class="invoice-future"><div class="invoice-future__header"><h3>Próximas faturas</h3><span>parcelas previstas</span></div><div id="invoice-future-list"></div></aside>
+                <aside class="invoice-future"><div class="invoice-future__header"><h3>Próximas faturas</h3><span>parcelas previstas</span></div><div id="invoice-future-list"></div><div class="invoice-items" id="invoice-items"></div></aside>
             </div>
         </section>
 
@@ -221,7 +222,8 @@
                 <label>Valor<input id="amount" name="amount" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00" required></label>
             </div>
             <label class="recurring-check"><input id="recurring" name="recurring" type="checkbox"> Repetir este lançamento todo mês</label>
-            <div class="form-row"><label>Conta ou cartão<select id="account" name="account" required></select></label><label>Parcelas<input id="installments" name="installments" type="number" min="1" value="1"></label></div>
+            <div class="form-row"><label>Conta ou cartão<select id="account" name="account" required></select></label><label>Parcelas<input id="installments" name="installments" type="number" min="1" max="120" value="1"></label></div>
+            <p class="installment-preview" id="installment-preview">Pagamento à vista.</p>
             <label>Data<input id="date" name="date" type="date" required></label>
             <button class="button button--primary button--full" type="submit">Salvar lançamento</button>
             <button class="button button--secondary button--full" id="cancel-edit" type="button" hidden>Cancelar edição</button>

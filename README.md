@@ -5,8 +5,9 @@ Um gerenciador financeiro pessoal simples, moderno e responsivo. Registre receit
 ## Recursos
 
 - Contas, carteira e cartão de crédito com saldos separados
-- Fatura inteligente com fechamento, vencimento, limite e projeção de parcelas
-- Parcelamento automático distribuído pelos próximos meses
+- Compras parceladas com divisão automática do valor total entre os meses
+- Faturas por ciclo, vencimento, limite, compras detalhadas e status de pagamento
+- Orçamentos mensais por categoria com alertas em 80% e 100% do limite
 - Recorrências mensais para receitas e despesas fixas
 - Metas financeiras com progresso e registro de aportes
 - Busca por descrição, categoria e faixa de valor
