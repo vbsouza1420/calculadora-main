@@ -165,6 +165,26 @@ function renderRadarChart() {
     const axes = entries.map(([name], i) => { const angle = -Math.PI / 2 + i * Math.PI * 2 / sides; const lx = cx + Math.cos(angle) * (radius + 35), ly = cy + Math.sin(angle) * (radius + 35) + 4; return `<line x1="${cx}" y1="${cy}" x2="${cx + Math.cos(angle) * radius}" y2="${cy + Math.sin(angle) * radius}" stroke="#334155"/><text x="${lx}" y="${ly}" text-anchor="middle" fill="#cbd5e1" font-size="10">${name.toUpperCase()}</text>`; }).join(""); chart.innerHTML = `${[1, .66, .33].map((scale) => `<polygon points="${polygon(scale)}" fill="none" stroke="#263247"/>`).join("")}${axes}<polygon points="${entries.map(([, value], i) => point(i, value)).join(" ")}" fill="rgba(59,130,246,.22)" stroke="#60a5fa" stroke-width="3"/>`;
 }
 
+function renderAgenda() {
+    const month = activeMonth(), records = monthRecords(month).sort((a, b) => new Date(a.date) - new Date(b.date));
+    const firstDay = new Date(`${month}-01T12:00:00`), daysInMonth = new Date(firstDay.getFullYear(), firstDay.getMonth() + 1, 0).getDate();
+    const leadingDays = (firstDay.getDay() + 6) % 7;
+    const byDay = records.reduce((all, item) => { const day = Number(item.date.slice(8, 10)); (all[day] ||= []).push(item); return all; }, {});
+    const today = new Date().toISOString().slice(0, 10);
+    const cells = Array.from({ length: leadingDays + daysInMonth }, (_, index) => {
+        if (index < leadingDays) return '<div class="calendar-day calendar-day--empty" aria-hidden="true"></div>';
+        const day = index - leadingDays + 1, date = `${month}-${String(day).padStart(2, "0")}`, items = byDay[day] || [];
+        const net = totalByType(items, "income") - totalByType(items, "expense"), dots = items.slice(0, 3).map((item) => `<i class="calendar-dot calendar-dot--${item.type}"></i>`).join("");
+        return `<div class="calendar-day ${date === today ? "calendar-day--today" : ""} ${items.length ? "calendar-day--active" : ""}" title="${items.length ? `${items.length} movimento(s)` : "Sem movimentos"}"><span>${day}</span><div class="calendar-dots">${dots}${items.length > 3 ? `<b>+${items.length - 3}</b>` : ""}</div>${items.length ? `<small class="${net >= 0 ? "is-positive" : "is-negative"}">${net >= 0 ? "+" : "−"}${formatMoney(Math.abs(net)).replace("R$", "")}</small>` : ""}</div>`;
+    });
+    document.querySelector("#calendar-grid").innerHTML = cells.join("");
+    document.querySelector("#agenda-count").textContent = records.length;
+    const net = totalByType(records, "income") - totalByType(records, "expense");
+    const netElement = document.querySelector("#agenda-net"); netElement.textContent = formatMoney(net); netElement.className = net < 0 ? "is-negative" : "is-positive";
+    document.querySelector("#agenda-month").textContent = monthLabel(month);
+    document.querySelector("#agenda-list").innerHTML = records.length ? records.slice(0, 6).map((item) => `<div class="agenda-item"><time>${formatDate(item.date)}</time><span class="agenda-item__dot agenda-item__dot--${item.type}"></span><div><strong>${item.description}</strong><small>${item.category} · ${accountFor(item.accountId).name}</small></div><b class="${item.type === "income" ? "is-positive" : "is-negative"}">${item.type === "income" ? "+" : "−"}${formatMoney(item.amount)}</b></div>`).join("") : "<p class=workspace-empty>Nenhum movimento neste mês. Adicione um lançamento para preencher a agenda.</p>";
+}
+
 function renderBudget() {
     budgetCategory.innerHTML = categories.expense.map((name) => `<option>${name}</option>`).join(""); const month = activeMonth(), records = monthRecords(month), monthBudgets = budgets[month] || {}, list = Object.entries(monthBudgets);
     document.querySelector("#budget-list").innerHTML = list.length ? list.map(([name, limit]) => { const spent = records.filter((item) => item.type === "expense" && item.category === name).reduce((sum, item) => sum + item.amount, 0); const percent = Math.min(100, Math.round((spent / limit) * 100)); return `<div class="budget-item"><div><strong>${name}</strong><span>${formatMoney(spent)} de ${formatMoney(limit)}</span></div><div class="budget-track"><i style="width:${percent}%"></i></div><b class="${spent > limit ? "over" : ""}">${percent}%</b></div>`; }).join("") : "<p class=workspace-empty>Defina um limite para acompanhar seus gastos.</p>";
@@ -181,7 +201,7 @@ function renderRecurrences() {
     recurringList.innerHTML = templates.length ? templates.map((item) => `<div class="recurring-item"><span>${item.type === "income" ? "↗" : "↘"}</span><div><strong>${item.description}</strong><small>${accountFor(item.accountId).name} · todo mês</small></div><b>${formatMoney(item.amount)}</b><button class="delete-button" data-recurring-stop="${item.id}" type="button" title="Parar recorrência">×</button></div>`).join("") : "<p class=workspace-empty>Marque um lançamento como mensal para ele aparecer aqui.</p>";
 }
 function renderInsights() { const records = visibleRecords(), expense = totalByType(records, "expense"), income = totalByType(records, "income"), target = plans[activeMonth()]?.savings || 0; const message = !records.length ? "Adicione lançamentos para receber leituras do seu mês." : target && income - expense >= target ? "Meta de reserva atingida: seu mês está no azul." : expense > income ? "Atenção: as saídas estão maiores que as entradas neste período." : "Ritmo saudável: continue registrando para manter a visão completa."; document.querySelector(".tip").innerHTML = `<span>✦</span><p>${message}</p>`; }
-function render() { updateMonthFilter(); updateCategoryFilter(); renderSummary(); renderTrendChart(); renderRadarChart(); renderTransactions(); renderCategoryChart(); renderBudget(); renderPlan(); renderAccounts(); renderGoals(); renderRecurrences(); renderInsights(); }
+function render() { updateMonthFilter(); updateCategoryFilter(); renderSummary(); renderTrendChart(); renderRadarChart(); renderAgenda(); renderTransactions(); renderCategoryChart(); renderBudget(); renderPlan(); renderAccounts(); renderGoals(); renderRecurrences(); renderInsights(); }
 
 function openModal(item = null) {
     editingId = item?.id || null; form.reset(); setType(item?.type || "expense"); setAccounts(item?.accountId);

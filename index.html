@@ -8,8 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=20260817-8">
-    <script src="script.js?v=20260817-8" defer></script>
+    <link rel="stylesheet" href="style.css?v=20260817-9">
+    <script src="script.js?v=20260817-9" defer></script>
 </head>
 <body>
     <div class="promo-bar"><span><b>MEU BOLSO</b> · CONTROLE FINANCEIRO LOCAL</span><span>SEM CONTA · SEM ANÚNCIO · DADOS NO SEU DISPOSITIVO <b>→</b></span></div>
@@ -85,6 +85,20 @@
                     <div class="analytics-card__header"><div><p class="eyebrow">Perfil</p><h3>Mapa de gastos</h3></div><span class="radar-badge">Categorias</span></div>
                     <svg class="radar-chart" id="radar-chart" viewBox="0 0 420 300" role="img" aria-label="Gráfico radar de gastos por categoria"></svg>
                 </article>
+            </div>
+        </section>
+
+        <section class="agenda-panel" id="agenda" aria-labelledby="agenda-title">
+            <div class="agenda-panel__header">
+                <div><p class="eyebrow mono">04 · AGENDA FINANCEIRA</p><h2 id="agenda-title">Mapa do seu mês</h2><p>Veja os dias com dinheiro entrando ou saindo antes que eles cheguem.</p></div>
+                <div class="agenda-stats"><span><b id="agenda-count">0</b> movimentos</span><span><b id="agenda-net">R$ 0,00</b> saldo previsto</span></div>
+            </div>
+            <div class="agenda-layout">
+                <div class="calendar-wrap">
+                    <div class="calendar-weekdays" aria-hidden="true"><span>SEG</span><span>TER</span><span>QUA</span><span>QUI</span><span>SEX</span><span>SÁB</span><span>DOM</span></div>
+                    <div class="calendar-grid" id="calendar-grid" aria-label="Calendário de lançamentos"></div>
+                </div>
+                <aside class="agenda-upcoming"><div class="agenda-upcoming__header"><h3>Movimentos do mês</h3><span id="agenda-month"></span></div><div id="agenda-list"></div></aside>
             </div>
         </section>
 
