@@ -8,8 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=20260817-5">
-    <script src="script.js?v=20260817-5" defer></script>
+    <link rel="stylesheet" href="style.css?v=20260817-6">
+    <script src="script.js?v=20260817-6" defer></script>
 </head>
 <body>
     <div class="promo-bar"><span><b>MEU BOLSO</b> · CONTROLE FINANCEIRO LOCAL</span><span>SEM CONTA · SEM ANÚNCIO · DADOS NO SEU DISPOSITIVO <b>→</b></span></div>
@@ -19,6 +19,12 @@
                 <span class="brand__wordmark">MEU BOLSO<span class="brand__cursor">_</span></span>
             </a>
             <nav class="app-nav" aria-label="Navegação principal"><a href="#dashboard">PAINEL</a><a href="#movimentos">MOVIMENTOS</a><a href="#insights">LEITURA</a></nav>
+            <div class="topbar-actions">
+                <button class="topbar-button" id="export-data" type="button">EXPORTAR</button>
+                <button class="topbar-button" id="export-csv" type="button">CSV</button>
+                <label class="topbar-button" for="import-data">IMPORTAR</label><input id="import-data" type="file" accept="application/json" hidden>
+                <button class="topbar-button" id="theme-toggle" type="button" aria-label="Alternar tema">◐</button>
+            </div>
             <p class="privacy">DADOS LOCAIS <i></i> ONLINE</p>
         </header>
 
@@ -78,6 +84,28 @@
             </div>
         </section>
 
+        <section class="workspace-grid" id="planejamento">
+            <article class="panel workspace-card">
+                <div class="panel__header"><div><p class="eyebrow mono">04 · ORÇAMENTO</p><h2>Limites por categoria</h2><p>Defina quanto pretende gastar em cada área.</p></div></div>
+                <form class="compact-form" id="budget-form">
+                    <select id="budget-category" aria-label="Categoria do orçamento"></select>
+                    <input id="budget-amount" type="text" inputmode="decimal" placeholder="Limite mensal" required>
+                    <button class="button button--primary" type="submit">Salvar limite</button>
+                </form>
+                <div class="budget-list" id="budget-list"></div>
+            </article>
+            <article class="panel workspace-card">
+                <div class="panel__header"><div><p class="eyebrow mono">05 · PLANO</p><h2>Planejamento do mês</h2><p>Transforme intenção em uma meta clara.</p></div></div>
+                <form class="plan-form" id="plan-form">
+                    <label>Receber<input id="plan-income" type="text" inputmode="decimal" placeholder="0,00"></label>
+                    <label>Gastar<input id="plan-expense" type="text" inputmode="decimal" placeholder="0,00"></label>
+                    <label>Guardar<input id="plan-savings" type="text" inputmode="decimal" placeholder="0,00"></label>
+                    <button class="button button--primary" type="submit">Salvar plano</button>
+                </form>
+                <div class="plan-summary" id="plan-summary"></div>
+            </article>
+        </section>
+
         <section class="content-grid">
             <article class="panel transactions-panel" id="movimentos">
                 <div class="panel__header">
@@ -123,8 +151,10 @@
                 <label>Categoria<select id="category" name="category" required></select></label>
                 <label>Valor<input id="amount" name="amount" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00" required></label>
             </div>
+            <label class="recurring-check"><input id="recurring" name="recurring" type="checkbox"> Repetir este lançamento todo mês</label>
             <label>Data<input id="date" name="date" type="date" required></label>
             <button class="button button--primary button--full" type="submit">Salvar lançamento</button>
+            <button class="button button--secondary button--full" id="cancel-edit" type="button" hidden>Cancelar edição</button>
         </form>
     </dialog>
 </body>
