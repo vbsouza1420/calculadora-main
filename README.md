@@ -44,6 +44,13 @@ Um gerenciador financeiro pessoal simples, moderno e responsivo. Registre receit
 - JavaScript
 - LocalStorage do navegador
 - Supabase Auth e Postgres
+- Alertas locais de vencimento e orçamento
+- Dashboard anual com médias e resultado acumulado
+- Transferências entre contas sem distorcer receitas e despesas
+- Importação de extratos CSV e OFX
+- Categorias personalizadas
+- Aplicativo instalável (PWA) com funcionamento offline
+- Recuperação, alteração de senha e exclusão segura da conta
 
 ## Estrutura
 

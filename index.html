@@ -4,14 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#111827">
+    <meta name="description" content="Controle pessoal de receitas, despesas, cartões e orçamentos.">
+    <link rel="manifest" href="manifest.webmanifest">
     <title>Gastos Financeiros</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=20260817-13">
+    <link rel="stylesheet" href="style.css?v=20260817-14">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <script src="config.js?v=20260817-11" defer></script>
-    <script src="script.js?v=20260817-13" defer></script>
+    <script src="script.js?v=20260817-14" defer></script>
 </head>
 <body>
     <div class="promo-bar"><span><b>GASTOS FINANCEIROS</b> · CONTROLE FINANCEIRO SEGURO</span><span>CONTA OPCIONAL · SEM ANÚNCIO · SINCRONIZAÇÃO PROTEGIDA <b>→</b></span></div>
@@ -174,6 +176,15 @@
                 <div class="cloud-user" id="cloud-user"><span>○</span><div><strong>Modo local</strong><small>Os dados estão somente neste navegador.</small></div></div>
                 <button class="button button--secondary" id="cloud-account-action" type="button">Entrar ou criar conta</button>
             </div>
+        </section>
+
+        <section class="toolkit" id="ferramentas">
+            <article class="tool-card tool-card--wide"><div class="panel__header"><div><p class="eyebrow mono">11 · VISÃO ANUAL</p><h2>Seu ano financeiro</h2><p>Compare os doze meses, médias e resultado acumulado.</p></div><select id="annual-year" aria-label="Ano do dashboard"></select></div><div class="annual-summary" id="annual-summary"></div><div class="annual-chart" id="annual-chart"></div></article>
+            <article class="tool-card"><div class="panel__header"><div><p class="eyebrow mono">12 · ALERTAS</p><h2>Central de notificações</h2></div><button class="mini-action" id="notification-permission" type="button">ATIVAR NO DISPOSITIVO</button></div><div class="notification-list" id="notification-list"></div></article>
+            <article class="tool-card"><div class="panel__header"><div><p class="eyebrow mono">13 · TRANSFERÊNCIA</p><h2>Entre suas contas</h2></div></div><form class="stack-form" id="transfer-form"><div class="form-row"><label>De<select id="transfer-from" required></select></label><label>Para<select id="transfer-to" required></select></label></div><label>Valor<input id="transfer-amount" inputmode="decimal" placeholder="0,00" required></label><label>Data<input id="transfer-date" type="date" required></label><button class="button button--primary">Transferir</button></form></article>
+            <article class="tool-card"><div class="panel__header"><div><p class="eyebrow mono">14 · IMPORTAÇÃO</p><h2>Extrato bancário</h2><p>Arquivos CSV ou OFX.</p></div></div><label class="file-drop" for="statement-import">Escolher extrato<input id="statement-import" type="file" accept=".csv,.ofx,text/csv,application/x-ofx" hidden></label><label>Conta de destino<select id="import-account"></select></label><p class="tool-feedback" id="import-feedback"></p></article>
+            <article class="tool-card"><div class="panel__header"><div><p class="eyebrow mono">15 · CATEGORIAS</p><h2>Personalizar categorias</h2></div></div><form class="stack-form" id="category-form"><div class="form-row"><select id="custom-category-type"><option value="expense">Despesa</option><option value="income">Receita</option></select><input id="custom-category-name" maxlength="24" placeholder="Nome da categoria" required></div><button class="button button--primary">Adicionar categoria</button></form><div class="category-manager" id="category-manager"></div></article>
+            <article class="tool-card"><div class="panel__header"><div><p class="eyebrow mono">16 · CONTA E APP</p><h2>Segurança e instalação</h2></div></div><div class="security-actions"><button class="button button--secondary" id="install-app" type="button" hidden>Instalar aplicativo</button><button class="button button--secondary" id="reset-password" type="button">Recuperar senha</button><button class="button button--secondary" id="change-password" type="button">Alterar senha</button><button class="danger-action" id="delete-account" type="button">Excluir minha conta e dados</button></div><p class="tool-feedback" id="security-feedback"></p></article>
         </section>
 
         <section class="content-grid">
