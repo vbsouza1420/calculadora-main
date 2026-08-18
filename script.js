@@ -30,6 +30,11 @@ const goalTarget = document.querySelector("#goal-target");
 const goalCurrent = document.querySelector("#goal-current");
 const goalList = document.querySelector("#goal-list");
 const recurringList = document.querySelector("#recurring-list");
+const cardSettingsForm = document.querySelector("#card-settings-form");
+const invoiceCard = document.querySelector("#invoice-card");
+const cardLimit = document.querySelector("#card-limit");
+const cardClosingDay = document.querySelector("#card-closing-day");
+const cardDueDay = document.querySelector("#card-due-day");
 
 const categories = {
     expense: ["Alimentação", "Moradia", "Transporte", "Lazer", "Saúde", "Assinaturas", "Outros"],
@@ -38,7 +43,7 @@ const categories = {
 const defaultAccounts = [
     { id: "bank", name: "Conta principal", type: "bank" },
     { id: "cash", name: "Carteira", type: "cash" },
-    { id: "card", name: "Cartão de crédito", type: "card" }
+    { id: "card", name: "Cartão de crédito", type: "card", limit: 0, closingDay: 25, dueDay: 5 }
 ];
 const accountTypes = { bank: "Conta", cash: "Carteira", card: "Cartão" };
 const accountIcons = { bank: "⌁", cash: "¤", card: "▣" };
@@ -50,6 +55,7 @@ let accounts = read(keys.accounts, defaultAccounts);
 let goals = read(keys.goals, []);
 let selectedMonth = "all";
 let editingId = null;
+let selectedInvoiceCard = null;
 
 const currentMonth = () => new Date().toISOString().slice(0, 7);
 const formatMoney = (value) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(value) || 0);
@@ -76,6 +82,8 @@ function formatAmount(value, finish = false) {
 function parseAmount(value) { return Number(String(value ?? "").replace(/\./g, "").replace(",", ".")); }
 function previousMonth(month) { const date = new Date(`${month}-01T12:00:00`); date.setMonth(date.getMonth() - 1); return date.toISOString().slice(0, 7); }
 function dateAfterMonths(dateValue, months) { const date = new Date(`${dateValue}T12:00:00`); date.setMonth(date.getMonth() + months); return date.toISOString().slice(0, 10); }
+function invoiceMonthFor(item, card) { const month = item.date.slice(0, 7); return Number(item.date.slice(8, 10)) > Number(card.closingDay || 25) ? dateAfterMonths(`${month}-01`, 1).slice(0, 7) : month; }
+function dueDateFor(month, card) { const dueMonth = Number(card.dueDay || 5) <= Number(card.closingDay || 25) ? dateAfterMonths(`${month}-01`, 1).slice(0, 7) : month; return `${dueMonth}-${String(card.dueDay || 5).padStart(2, "0")}`; }
 
 function setupAdvancedFilters() {
     const header = document.querySelector(".transactions-panel .panel__header");
@@ -193,6 +201,23 @@ function renderPlan() { const month = activeMonth(), plan = plans[month], record
 function renderAccounts() {
     accountList.innerHTML = accounts.map((account) => { const records = transactions.filter((item) => item.accountId === account.id); const income = totalByType(records, "income"), expense = totalByType(records, "expense"); const value = account.type === "card" ? expense : income - expense; const label = account.type === "card" ? "Fatura acumulada" : "Saldo"; const removable = !["bank", "cash", "card"].includes(account.id); return `<div class="account-item"><span class="account-icon">${accountIcons[account.type]}</span><div><strong>${account.name}</strong><small>${accountTypes[account.type]} · ${label}</small></div><b class="${account.type === "card" ? "is-card" : ""}">${formatMoney(value)}</b>${removable ? `<button class="delete-button" data-account-delete="${account.id}" aria-label="Remover conta">×</button>` : ""}</div>`; }).join("");
 }
+function renderInvoice() {
+    const cards = accounts.filter((account) => account.type === "card");
+    if (!cards.length) { invoiceCard.innerHTML = '<option value="">Crie um cartão</option>'; cardSettingsForm.hidden = true; document.querySelector("#invoice-future-list").innerHTML = '<p class="workspace-empty">Adicione um cartão para ativar a fatura inteligente.</p>'; return; }
+    cardSettingsForm.hidden = false;
+    if (!cards.some((card) => card.id === selectedInvoiceCard)) selectedInvoiceCard = cards[0].id;
+    invoiceCard.innerHTML = cards.map((card) => `<option value="${card.id}">${card.name}</option>`).join(""); invoiceCard.value = selectedInvoiceCard;
+    const card = cards.find((item) => item.id === selectedInvoiceCard), month = activeMonth();
+    cardLimit.value = card.limit ? formatAmount(Number(card.limit).toFixed(2).replace(".", ","), true) : ""; cardClosingDay.value = card.closingDay || 25; cardDueDay.value = card.dueDay || 5;
+    const cardExpenses = transactions.filter((item) => item.type === "expense" && item.accountId === card.id);
+    const cycleItems = cardExpenses.filter((item) => invoiceMonthFor(item, card) === month), total = totalByType(cycleItems, "expense"), limit = Number(card.limit || 0), available = Math.max(limit - total, 0), usage = limit ? Math.min(100, Math.round((total / limit) * 100)) : 0;
+    document.querySelector("#invoice-total").textContent = formatMoney(total); document.querySelector("#invoice-available").textContent = formatMoney(available); document.querySelector("#invoice-progress").style.width = `${usage}%`;
+    const dueDate = dueDateFor(month, card), due = new Date(`${dueDate}T12:00:00`), today = new Date(); today.setHours(12, 0, 0, 0); const days = Math.ceil((due - today) / 86400000);
+    document.querySelector("#invoice-due-date").textContent = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short" }).format(due);
+    document.querySelector("#invoice-status").textContent = days < 0 ? `Venceu há ${Math.abs(days)} dia(s)` : days === 0 ? "Vence hoje" : `Vence em ${days} dia(s) · ${usage}% do limite`;
+    const future = Array.from({ length: 4 }, (_, index) => { const target = dateAfterMonths(`${month}-01`, index + 1).slice(0, 7); return { month: target, total: totalByType(cardExpenses.filter((item) => invoiceMonthFor(item, card) === target), "expense") }; });
+    document.querySelector("#invoice-future-list").innerHTML = future.map((item) => `<div class="invoice-future__item"><span>${monthLabel(item.month)}</span><strong>${formatMoney(item.total)}</strong></div>`).join("");
+}
 function renderGoals() {
     goalList.innerHTML = goals.length ? goals.map((goal) => { const percent = Math.min(100, Math.round((goal.current / goal.target) * 100)); return `<div class="goal-item"><div class="goal-item__header"><strong>${goal.name}</strong><span>${formatMoney(goal.current)} de ${formatMoney(goal.target)}</span></div><div class="goal-track"><i style="width:${percent}%"></i></div><div class="goal-item__actions"><small>${percent}% concluída</small><button data-goal-add="${goal.id}" type="button">+ aporte</button><button class="delete-button" data-goal-delete="${goal.id}" type="button" aria-label="Excluir meta">×</button></div></div>`; }).join("") : "<p class=workspace-empty>Crie uma meta para acompanhar sua evolução.</p>";
 }
@@ -201,7 +226,7 @@ function renderRecurrences() {
     recurringList.innerHTML = templates.length ? templates.map((item) => `<div class="recurring-item"><span>${item.type === "income" ? "↗" : "↘"}</span><div><strong>${item.description}</strong><small>${accountFor(item.accountId).name} · todo mês</small></div><b>${formatMoney(item.amount)}</b><button class="delete-button" data-recurring-stop="${item.id}" type="button" title="Parar recorrência">×</button></div>`).join("") : "<p class=workspace-empty>Marque um lançamento como mensal para ele aparecer aqui.</p>";
 }
 function renderInsights() { const records = visibleRecords(), expense = totalByType(records, "expense"), income = totalByType(records, "income"), target = plans[activeMonth()]?.savings || 0; const message = !records.length ? "Adicione lançamentos para receber leituras do seu mês." : target && income - expense >= target ? "Meta de reserva atingida: seu mês está no azul." : expense > income ? "Atenção: as saídas estão maiores que as entradas neste período." : "Ritmo saudável: continue registrando para manter a visão completa."; document.querySelector(".tip").innerHTML = `<span>✦</span><p>${message}</p>`; }
-function render() { updateMonthFilter(); updateCategoryFilter(); renderSummary(); renderTrendChart(); renderRadarChart(); renderAgenda(); renderTransactions(); renderCategoryChart(); renderBudget(); renderPlan(); renderAccounts(); renderGoals(); renderRecurrences(); renderInsights(); }
+function render() { updateMonthFilter(); updateCategoryFilter(); renderSummary(); renderTrendChart(); renderRadarChart(); renderAgenda(); renderTransactions(); renderCategoryChart(); renderBudget(); renderPlan(); renderAccounts(); renderInvoice(); renderGoals(); renderRecurrences(); renderInsights(); }
 
 function openModal(item = null) {
     editingId = item?.id || null; form.reset(); setType(item?.type || "expense"); setAccounts(item?.accountId);
@@ -212,7 +237,7 @@ function openModal(item = null) {
 function download(filename, content, type) { const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([content], { type })); link.download = filename; link.click(); URL.revokeObjectURL(link.href); }
 
 document.querySelector("#new-transaction").addEventListener("click", () => openModal()); document.querySelector("[data-open-form]").addEventListener("click", () => openModal()); document.querySelector("#close-modal").addEventListener("click", () => modal.close()); document.querySelector("#cancel-edit").addEventListener("click", () => { editingId = null; modal.close(); }); document.querySelectorAll(".type-option").forEach((button) => button.addEventListener("click", () => setType(button.dataset.type)));
-filter.addEventListener("change", render); monthFilter.addEventListener("change", () => { selectedMonth = monthFilter.value; render(); }); [amountInput, budgetAmount, goalTarget, goalCurrent, ...planInputs].forEach((input) => { input.addEventListener("input", () => { input.value = formatAmount(input.value); }); input.addEventListener("blur", () => { input.value = formatAmount(input.value, true); }); });
+filter.addEventListener("change", render); monthFilter.addEventListener("change", () => { selectedMonth = monthFilter.value; render(); }); [amountInput, budgetAmount, goalTarget, goalCurrent, cardLimit, ...planInputs].forEach((input) => { input.addEventListener("input", () => { input.value = formatAmount(input.value); }); input.addEventListener("blur", () => { input.value = formatAmount(input.value, true); }); });
 form.addEventListener("submit", (event) => {
     event.preventDefault(); const data = new FormData(form); const amount = parseAmount(data.get("amount")); if (!Number.isFinite(amount) || amount <= 0) return;
     const base = { type: data.get("type"), description: data.get("description").trim(), category: data.get("category"), amount, date: data.get("date"), accountId: data.get("account"), recurring: data.get("recurring") === "on" };
@@ -224,6 +249,8 @@ transactionList.addEventListener("click", (event) => { const edit = event.target
 budgetForm.addEventListener("submit", (event) => { event.preventDefault(); const amount = parseAmount(budgetAmount.value); if (!amount) return; const month = activeMonth(); budgets[month] = { ...(budgets[month] || {}), [budgetCategory.value]: amount }; budgetAmount.value = ""; saveAll(); render(); });
 planForm.addEventListener("submit", (event) => { event.preventDefault(); const [income, expense, savings] = planInputs.map((input) => parseAmount(input.value) || 0); plans[activeMonth()] = { income, expense, savings }; saveAll(); render(); });
 accountForm.addEventListener("submit", (event) => { event.preventDefault(); const name = accountName.value.trim(); if (!name) return; accounts.push({ id: crypto.randomUUID(), name, type: accountType.value }); accountForm.reset(); saveAll(); render(); });
+invoiceCard.addEventListener("change", () => { selectedInvoiceCard = invoiceCard.value; renderInvoice(); });
+cardSettingsForm.addEventListener("submit", (event) => { event.preventDefault(); const limit = parseAmount(cardLimit.value), closingDay = Number(cardClosingDay.value), dueDay = Number(cardDueDay.value); if (!selectedInvoiceCard || !Number.isFinite(limit) || limit <= 0 || closingDay < 1 || closingDay > 28 || dueDay < 1 || dueDay > 28) return; accounts = accounts.map((account) => account.id === selectedInvoiceCard ? { ...account, limit, closingDay, dueDay } : account); saveAll(); render(); });
 accountList.addEventListener("click", (event) => { const id = event.target.dataset.accountDelete; if (!id) return; transactions = transactions.map((item) => item.accountId === id ? { ...item, accountId: "bank" } : item); accounts = accounts.filter((item) => item.id !== id); saveAll(); render(); });
 goalForm.addEventListener("submit", (event) => { event.preventDefault(); const target = parseAmount(goalTarget.value), current = parseAmount(goalCurrent.value) || 0; if (!goalName.value.trim() || !target) return; goals.push({ id: crypto.randomUUID(), name: goalName.value.trim(), target, current }); goalForm.reset(); saveAll(); render(); });
 goalList.addEventListener("click", (event) => { const add = event.target.dataset.goalAdd, remove = event.target.dataset.goalDelete; if (add) { const value = parseAmount(prompt("Qual valor você quer adicionar a esta meta?", "") || ""); if (Number.isFinite(value) && value > 0) goals = goals.map((goal) => goal.id === add ? { ...goal, current: goal.current + value } : goal); } if (remove) goals = goals.filter((goal) => goal.id !== remove); saveAll(); render(); });
@@ -234,4 +261,5 @@ document.querySelector("#export-csv").addEventListener("click", () => { const he
 document.querySelector("#theme-toggle").addEventListener("click", () => { document.body.classList.toggle("light"); localStorage.setItem(keys.theme, document.body.classList.contains("light") ? "light" : "dark"); });
 if (localStorage.getItem(keys.theme) === "light") document.body.classList.add("light");
 transactions = transactions.map((item) => ({ ...item, accountId: item.accountId || "bank" }));
+accounts = accounts.map((account) => account.type === "card" ? { ...account, limit: Number(account.limit || 0), closingDay: Number(account.closingDay || 25), dueDay: Number(account.dueDay || 5) } : account);
 setupAdvancedFilters(); syncRecurringTransactions(); setCategories("expense"); setAccounts(); saveAll(); render();

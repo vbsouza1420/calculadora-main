@@ -8,8 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=20260817-9">
-    <script src="script.js?v=20260817-9" defer></script>
+    <link rel="stylesheet" href="style.css?v=20260817-10">
+    <script src="script.js?v=20260817-10" defer></script>
 </head>
 <body>
     <div class="promo-bar"><span><b>GASTOS FINANCEIROS</b> · CONTROLE FINANCEIRO LOCAL</span><span>SEM CONTA · SEM ANÚNCIO · DADOS NO SEU DISPOSITIVO <b>→</b></span></div>
@@ -139,6 +139,28 @@
                 <div class="panel__header"><div><p class="eyebrow mono">08 · RECORRÊNCIAS</p><h2>Movimentos mensais</h2></div></div>
                 <div class="recurring-list" id="recurring-list"></div>
             </article>
+        </section>
+
+        <section class="invoice-panel" id="faturas" aria-labelledby="invoice-title">
+            <div class="invoice-panel__header">
+                <div><p class="eyebrow mono">09 · CARTÃO DE CRÉDITO</p><h2 id="invoice-title">Fatura inteligente</h2><p>Configure fechamento, vencimento e limite para acompanhar cada ciclo.</p></div>
+                <select id="invoice-card" aria-label="Selecionar cartão"></select>
+            </div>
+            <div class="invoice-layout">
+                <form class="invoice-settings" id="card-settings-form">
+                    <label>Limite do cartão<input id="card-limit" type="text" inputmode="decimal" placeholder="0,00" required></label>
+                    <label>Dia de fechamento<input id="card-closing-day" type="number" min="1" max="28" placeholder="25" required></label>
+                    <label>Dia de vencimento<input id="card-due-day" type="number" min="1" max="28" placeholder="5" required></label>
+                    <button class="button button--primary" type="submit">Salvar configuração</button>
+                </form>
+                <div class="invoice-summary">
+                    <div class="invoice-total"><span>Fatura do ciclo</span><strong id="invoice-total">R$ 0,00</strong><small id="invoice-status">Configure seu cartão</small></div>
+                    <div class="invoice-metric"><span>Limite disponível</span><strong id="invoice-available">R$ 0,00</strong></div>
+                    <div class="invoice-metric"><span>Vencimento</span><strong id="invoice-due-date">—</strong></div>
+                    <div class="invoice-progress"><i id="invoice-progress"></i></div>
+                </div>
+                <aside class="invoice-future"><div class="invoice-future__header"><h3>Próximas faturas</h3><span>parcelas previstas</span></div><div id="invoice-future-list"></div></aside>
+            </div>
         </section>
 
         <section class="content-grid">
