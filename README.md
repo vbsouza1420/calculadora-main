@@ -1,4 +1,4 @@
-# Meu Bolso
+# Gastos Financeiros
 
 Um gerenciador financeiro pessoal simples, moderno e responsivo. Registre receitas e despesas, acompanhe seu saldo e descubra para onde seu dinheiro está indo — tudo direto no navegador.
 
