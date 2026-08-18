@@ -2,6 +2,10 @@ const keys = {
     transactions: "meu-bolso-transactions", budgets: "meu-bolso-budgets", plans: "meu-bolso-plans",
     accounts: "meu-bolso-accounts", goals: "meu-bolso-goals", theme: "meu-bolso-theme"
 };
+const cloudClient = window.supabase?.createClient(window.SUPABASE_CONFIG?.url, window.SUPABASE_CONFIG?.publishableKey);
+let currentUser = null;
+let cloudSaveTimer = null;
+let applyingCloudData = false;
 
 const form = document.querySelector("#transaction-form");
 const modal = document.querySelector("#transaction-modal");
@@ -35,6 +39,14 @@ const invoiceCard = document.querySelector("#invoice-card");
 const cardLimit = document.querySelector("#card-limit");
 const cardClosingDay = document.querySelector("#card-closing-day");
 const cardDueDay = document.querySelector("#card-due-day");
+const authModal = document.querySelector("#auth-modal");
+const authForm = document.querySelector("#auth-form");
+const authEmail = document.querySelector("#auth-email");
+const authPassword = document.querySelector("#auth-password");
+const authFeedback = document.querySelector("#auth-feedback");
+const smsSettings = document.querySelector("#sms-settings");
+const smsPhone = document.querySelector("#sms-phone");
+const smsConsent = document.querySelector("#sms-consent");
 
 const categories = {
     expense: ["Alimentação", "Moradia", "Transporte", "Lazer", "Saúde", "Assinaturas", "Outros"],
@@ -64,6 +76,7 @@ const monthLabel = (month) => month === "all" ? "Todos os meses" : new Intl.Date
 const saveAll = () => {
     localStorage.setItem(keys.transactions, JSON.stringify(transactions)); localStorage.setItem(keys.budgets, JSON.stringify(budgets));
     localStorage.setItem(keys.plans, JSON.stringify(plans)); localStorage.setItem(keys.accounts, JSON.stringify(accounts)); localStorage.setItem(keys.goals, JSON.stringify(goals));
+    if (!applyingCloudData) queueCloudSave();
 };
 const activeMonth = () => selectedMonth === "all" ? currentMonth() : selectedMonth;
 const monthRecords = (month) => transactions.filter((item) => item.date?.startsWith(month));
@@ -84,6 +97,43 @@ function previousMonth(month) { const date = new Date(`${month}-01T12:00:00`); d
 function dateAfterMonths(dateValue, months) { const date = new Date(`${dateValue}T12:00:00`); date.setMonth(date.getMonth() + months); return date.toISOString().slice(0, 10); }
 function invoiceMonthFor(item, card) { const month = item.date.slice(0, 7); return Number(item.date.slice(8, 10)) > Number(card.closingDay || 25) ? dateAfterMonths(`${month}-01`, 1).slice(0, 7) : month; }
 function dueDateFor(month, card) { const dueMonth = Number(card.dueDay || 5) <= Number(card.closingDay || 25) ? dateAfterMonths(`${month}-01`, 1).slice(0, 7) : month; return `${dueMonth}-${String(card.dueDay || 5).padStart(2, "0")}`; }
+
+function financialPayload() { return { version: 1, transactions, budgets, plans, accounts, goals }; }
+function setCloudStatus(message, online = false) { const status = document.querySelector("#cloud-status"); status.innerHTML = `${message} <i></i>`; status.classList.toggle("is-online", online); }
+function queueCloudSave() { if (!currentUser || !cloudClient) return; clearTimeout(cloudSaveTimer); cloudSaveTimer = setTimeout(pushCloudData, 650); }
+async function pushCloudData() {
+    if (!currentUser || !cloudClient) return;
+    setCloudStatus("SINCRONIZANDO", true);
+    const { error } = await cloudClient.from("finance_data").upsert({ user_id: currentUser.id, payload: financialPayload(), updated_at: new Date().toISOString() });
+    setCloudStatus(error ? "ERRO NA NUVEM" : "SALVO NA NUVEM", !error);
+}
+function applyCloudPayload(payload) {
+    applyingCloudData = true;
+    transactions = Array.isArray(payload.transactions) ? payload.transactions : transactions; budgets = payload.budgets || budgets; plans = payload.plans || plans;
+    accounts = Array.isArray(payload.accounts) && payload.accounts.length ? payload.accounts : accounts; goals = Array.isArray(payload.goals) ? payload.goals : goals;
+    transactions = transactions.map((item) => ({ ...item, accountId: item.accountId || "bank" }));
+    saveAll(); applyingCloudData = false; setAccounts(); render();
+}
+async function loadCloudData() {
+    const { data, error } = await cloudClient.from("finance_data").select("payload").eq("user_id", currentUser.id).maybeSingle();
+    if (error) { setCloudStatus("ERRO NA NUVEM"); return; }
+    if (data?.payload && Object.keys(data.payload).length) applyCloudPayload(data.payload); else await pushCloudData();
+}
+function formatPhoneE164(value) { const digits = String(value).replace(/\D/g, ""); if (!digits) return ""; return `+${digits.startsWith("55") ? digits : `55${digits}`}`; }
+async function loadProfile() {
+    const { data } = await cloudClient.from("profiles").select("phone,sms_enabled").eq("id", currentUser.id).maybeSingle();
+    smsPhone.value = data?.phone || ""; smsConsent.checked = Boolean(data?.sms_enabled); smsSettings.hidden = false;
+}
+function updateAuthUI() {
+    const action = document.querySelector("#cloud-account-action"), button = document.querySelector("#auth-button"), userBox = document.querySelector("#cloud-user");
+    if (currentUser) { button.textContent = "SAIR"; action.textContent = "Sair desta conta"; userBox.innerHTML = `<span>●</span><div><strong>${currentUser.email}</strong><small>Sincronização automática ativada.</small></div>`; setCloudStatus("SALVO NA NUVEM", true); }
+    else { button.textContent = "ENTRAR"; action.textContent = "Entrar ou criar conta"; userBox.innerHTML = "<span>○</span><div><strong>Modo local</strong><small>Os dados estão somente neste navegador.</small></div>"; smsSettings.hidden = true; setCloudStatus("DADOS LOCAIS"); }
+}
+async function initializeCloud() {
+    if (!cloudClient) { setCloudStatus("NUVEM INDISPONÍVEL"); return; }
+    const { data } = await cloudClient.auth.getSession(); currentUser = data.session?.user || null; updateAuthUI(); if (currentUser) { await loadCloudData(); await loadProfile(); }
+    cloudClient.auth.onAuthStateChange((_event, session) => { setTimeout(async () => { currentUser = session?.user || null; updateAuthUI(); if (currentUser) { await loadCloudData(); await loadProfile(); } }, 0); });
+}
 
 function setupAdvancedFilters() {
     const header = document.querySelector(".transactions-panel .panel__header");
@@ -258,8 +308,13 @@ recurringList.addEventListener("click", (event) => { const id = event.target.dat
 document.querySelector("#export-data").addEventListener("click", () => download(`gastos-financeiros-backup-${currentMonth()}.json`, JSON.stringify({ transactions, budgets, plans, accounts, goals }, null, 2), "application/json"));
 document.querySelector("#import-data").addEventListener("change", async (event) => { const file = event.target.files[0]; if (!file) return; try { const backup = JSON.parse(await file.text()); transactions = Array.isArray(backup.transactions) ? backup.transactions : transactions; budgets = backup.budgets || budgets; plans = backup.plans || plans; accounts = Array.isArray(backup.accounts) && backup.accounts.length ? backup.accounts : accounts; goals = Array.isArray(backup.goals) ? backup.goals : goals; transactions = transactions.map((item) => ({ ...item, accountId: item.accountId || "bank" })); saveAll(); render(); } catch { alert("Não foi possível importar este arquivo."); } event.target.value = ""; });
 document.querySelector("#export-csv").addEventListener("click", () => { const header = "tipo,descricao,categoria,conta,valor,data,recorrente,parcela"; const rows = transactions.map((item) => [item.type, item.description, item.category, accountFor(item.accountId).name, item.amount.toFixed(2).replace(".", ","), item.date, item.recurring ? "sim" : "não", item.installments > 1 ? `${item.installmentNumber}/${item.installments}` : ""].map((value) => `"${String(value).replaceAll('"', '""')}"`).join(",")); download(`gastos-financeiros-${currentMonth()}.csv`, `\uFEFF${header}\n${rows.join("\n")}`, "text/csv;charset=utf-8"); });
+async function handleAccountAction() { if (currentUser) await cloudClient.auth.signOut(); else { authFeedback.textContent = ""; authModal.showModal(); authEmail.focus(); } }
+document.querySelector("#auth-button").addEventListener("click", handleAccountAction); document.querySelector("#cloud-account-action").addEventListener("click", handleAccountAction); document.querySelector("#close-auth").addEventListener("click", () => authModal.close());
+authForm.addEventListener("submit", async (event) => { event.preventDefault(); authFeedback.textContent = "Entrando..."; const { error } = await cloudClient.auth.signInWithPassword({ email: authEmail.value.trim(), password: authPassword.value }); if (error) { authFeedback.textContent = error.message === "Invalid login credentials" ? "E-mail ou senha incorretos." : error.message; return; } authFeedback.textContent = "Conta conectada."; authModal.close(); authForm.reset(); });
+document.querySelector("#auth-signup").addEventListener("click", async () => { if (!authForm.reportValidity()) return; authFeedback.textContent = "Criando conta..."; const { data, error } = await cloudClient.auth.signUp({ email: authEmail.value.trim(), password: authPassword.value, options: { emailRedirectTo: "https://vbsouza1420.github.io/calculadora-main/" } }); if (error) { authFeedback.textContent = error.message; return; } authFeedback.textContent = data.session ? "Conta criada e conectada." : "Conta criada. Confirme o link enviado ao seu e-mail."; if (data.session) authModal.close(); });
+smsSettings.addEventListener("submit", async (event) => { event.preventDefault(); const feedback = document.querySelector("#sms-feedback"), phone = formatPhoneE164(smsPhone.value); if (!/^\+[1-9]\d{7,14}$/.test(phone)) { feedback.textContent = "Informe um telefone válido com DDD."; return; } feedback.textContent = "Salvando..."; const enabled = smsConsent.checked; const { error } = await cloudClient.from("profiles").update({ phone, sms_enabled: enabled, sms_consent_at: enabled ? new Date().toISOString() : null, updated_at: new Date().toISOString() }).eq("id", currentUser.id); feedback.textContent = error ? `Não foi possível salvar: ${error.message}` : enabled ? "Alertas autorizados. O envio será ativado após configurar a Twilio." : "Telefone salvo com alertas desativados."; });
 document.querySelector("#theme-toggle").addEventListener("click", () => { document.body.classList.toggle("light"); localStorage.setItem(keys.theme, document.body.classList.contains("light") ? "light" : "dark"); });
 if (localStorage.getItem(keys.theme) === "light") document.body.classList.add("light");
 transactions = transactions.map((item) => ({ ...item, accountId: item.accountId || "bank" }));
 accounts = accounts.map((account) => account.type === "card" ? { ...account, limit: Number(account.limit || 0), closingDay: Number(account.closingDay || 25), dueDay: Number(account.dueDay || 5) } : account);
-setupAdvancedFilters(); syncRecurringTransactions(); setCategories("expense"); setAccounts(); saveAll(); render();
+setupAdvancedFilters(); syncRecurringTransactions(); setCategories("expense"); setAccounts(); saveAll(); render(); initializeCloud();

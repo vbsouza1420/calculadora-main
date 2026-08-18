@@ -11,6 +11,11 @@ Um gerenciador financeiro pessoal simples, moderno e responsivo. Registre receit
 - Metas financeiras com progresso e registro de aportes
 - Busca por descrição, categoria e faixa de valor
 - Backup JSON e exportação em CSV
+- Login por e-mail com Supabase Auth
+- Sincronização automática entre dispositivos
+- Dados protegidos por Row Level Security (RLS)
+- Cadastro de telefone e consentimento para alertas de fatura
+- Função agendada para avisos de fechamento e vencimento por SMS
 
 - Cadastro de receitas e despesas
 - Saldo, total de entradas e saídas calculados automaticamente
@@ -39,6 +44,20 @@ Um gerenciador financeiro pessoal simples, moderno e responsivo. Registre receit
 - CSS3
 - JavaScript
 - LocalStorage do navegador
+- Supabase Auth, Postgres, Edge Functions e Cron
+- Twilio Programmable Messaging para SMS
+
+## Alertas por SMS
+
+A infraestrutura de alertas executa diariamente às 9h no horário de Brasília. Para liberar o envio real, configure estes segredos no projeto Supabase:
+
+```text
+TWILIO_ACCOUNT_SID
+TWILIO_AUTH_TOKEN
+TWILIO_FROM_NUMBER
+```
+
+As credenciais da Twilio devem ficar somente nos segredos das Edge Functions e nunca no código do navegador.
 
 ## Estrutura
 

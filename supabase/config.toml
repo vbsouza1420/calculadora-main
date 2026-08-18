@@ -1,0 +1,20 @@
+project_id = "gastos-financeiros"
+
+[auth]
+site_url = "https://vbsouza1420.github.io/calculadora-main/"
+additional_redirect_urls = ["https://vbsouza1420.github.io/calculadora-main/"]
+enable_signup = true
+minimum_password_length = 6
+
+[auth.email]
+enable_signup = true
+enable_confirmations = true
+max_frequency = "1m"
+otp_length = 8
+
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+
+[functions.send-finance-alerts]
+verify_jwt = false

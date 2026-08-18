@@ -8,11 +8,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=20260817-10">
-    <script src="script.js?v=20260817-10" defer></script>
+    <link rel="stylesheet" href="style.css?v=20260817-11">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script src="config.js?v=20260817-11" defer></script>
+    <script src="script.js?v=20260817-11" defer></script>
 </head>
 <body>
-    <div class="promo-bar"><span><b>GASTOS FINANCEIROS</b> · CONTROLE FINANCEIRO LOCAL</span><span>SEM CONTA · SEM ANÚNCIO · DADOS NO SEU DISPOSITIVO <b>→</b></span></div>
+    <div class="promo-bar"><span><b>GASTOS FINANCEIROS</b> · CONTROLE FINANCEIRO SEGURO</span><span>CONTA OPCIONAL · SEM ANÚNCIO · SINCRONIZAÇÃO PROTEGIDA <b>→</b></span></div>
     <main class="app">
         <header class="topbar">
             <a class="brand" href="#inicio" aria-label="Gastos Financeiros, início">
@@ -23,9 +25,10 @@
                 <button class="topbar-button" id="export-data" type="button">EXPORTAR</button>
                 <button class="topbar-button" id="export-csv" type="button">CSV</button>
                 <label class="topbar-button" for="import-data">IMPORTAR</label><input id="import-data" type="file" accept="application/json" hidden>
+                <button class="topbar-button topbar-button--account" id="auth-button" type="button">ENTRAR</button>
                 <button class="topbar-button" id="theme-toggle" type="button" aria-label="Alternar tema">◐</button>
             </div>
-            <p class="privacy">DADOS LOCAIS <i></i> ONLINE</p>
+            <p class="privacy" id="cloud-status">DADOS LOCAIS <i></i></p>
         </header>
 
         <section class="welcome" id="inicio">
@@ -163,6 +166,22 @@
             </div>
         </section>
 
+        <section class="cloud-panel" id="conta" aria-labelledby="cloud-title">
+            <div class="cloud-card">
+                <p class="eyebrow mono">10 · SINCRONIZAÇÃO</p><h2 id="cloud-title">Seus dados em todos os dispositivos</h2>
+                <p id="cloud-description">Entre para salvar o controle financeiro com segurança no Supabase.</p>
+                <div class="cloud-user" id="cloud-user"><span>○</span><div><strong>Modo local</strong><small>Os dados estão somente neste navegador.</small></div></div>
+                <button class="button button--secondary" id="cloud-account-action" type="button">Entrar ou criar conta</button>
+            </div>
+            <form class="sms-settings" id="sms-settings" hidden>
+                <div><p class="eyebrow mono">11 · ALERTAS</p><h2>Mensagens no celular</h2><p>Receba lembretes sobre fechamento e vencimento das faturas.</p></div>
+                <label>Número com DDD<input id="sms-phone" type="tel" inputmode="tel" placeholder="(11) 99999-9999" autocomplete="tel"></label>
+                <label class="consent-check"><input id="sms-consent" type="checkbox"> Autorizo o envio de alertas financeiros por SMS e posso cancelar quando quiser.</label>
+                <button class="button button--primary" type="submit">Salvar alertas</button>
+                <small id="sms-feedback"></small>
+            </form>
+        </section>
+
         <section class="content-grid">
             <article class="panel transactions-panel" id="movimentos">
                 <div class="panel__header">
@@ -213,6 +232,17 @@
             <label>Data<input id="date" name="date" type="date" required></label>
             <button class="button button--primary button--full" type="submit">Salvar lançamento</button>
             <button class="button button--secondary button--full" id="cancel-edit" type="button" hidden>Cancelar edição</button>
+        </form>
+    </dialog>
+    <dialog class="modal auth-modal" id="auth-modal" aria-labelledby="auth-title">
+        <form id="auth-form">
+            <div class="modal__header"><div><p class="eyebrow">Conta segura</p><h2 id="auth-title">Sincronize seus dados</h2></div><button class="icon-button" type="button" id="close-auth" aria-label="Fechar">×</button></div>
+            <p class="auth-copy">Use seu e-mail para acessar seus dados no computador e no celular.</p>
+            <label>E-mail<input id="auth-email" type="email" autocomplete="email" placeholder="voce@email.com" required></label>
+            <label>Senha<input id="auth-password" type="password" autocomplete="current-password" minlength="6" placeholder="Mínimo de 6 caracteres" required></label>
+            <button class="button button--primary button--full" id="auth-login" type="submit">Entrar</button>
+            <button class="button button--secondary button--full" id="auth-signup" type="button">Criar conta</button>
+            <p class="auth-feedback" id="auth-feedback"></p>
         </form>
     </dialog>
 </body>
