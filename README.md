@@ -4,6 +4,13 @@ Um gerenciador financeiro pessoal simples, moderno e responsivo. Registre receit
 
 ## Recursos
 
+- Contas, carteira e cartão de crédito com saldos separados
+- Parcelamento automático distribuído pelos próximos meses
+- Recorrências mensais para receitas e despesas fixas
+- Metas financeiras com progresso e registro de aportes
+- Busca por descrição, categoria e faixa de valor
+- Backup JSON e exportação em CSV
+
 - Cadastro de receitas e despesas
 - Saldo, total de entradas e saídas calculados automaticamente
 - Categorias para organizar os lançamentos

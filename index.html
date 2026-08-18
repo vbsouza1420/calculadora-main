@@ -8,8 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=20260817-6">
-    <script src="script.js?v=20260817-6" defer></script>
+    <link rel="stylesheet" href="style.css?v=20260817-7">
+    <script src="script.js?v=20260817-7" defer></script>
 </head>
 <body>
     <div class="promo-bar"><span><b>MEU BOLSO</b> · CONTROLE FINANCEIRO LOCAL</span><span>SEM CONTA · SEM ANÚNCIO · DADOS NO SEU DISPOSITIVO <b>→</b></span></div>
@@ -106,6 +106,23 @@
             </article>
         </section>
 
+        <section class="operations-grid" id="operacoes">
+            <article class="panel operation-card">
+                <div class="panel__header"><div><p class="eyebrow mono">06 · CONTAS</p><h2>Contas e cartões</h2></div></div>
+                <form class="compact-form account-form" id="account-form"><input id="account-name" placeholder="Nome da conta" required><select id="account-type"><option value="bank">Conta</option><option value="cash">Carteira</option><option value="card">Cartão</option></select><button class="button button--primary">Adicionar</button></form>
+                <div class="account-list" id="account-list"></div>
+            </article>
+            <article class="panel operation-card">
+                <div class="panel__header"><div><p class="eyebrow mono">07 · METAS</p><h2>Objetivos financeiros</h2></div></div>
+                <form class="goal-form" id="goal-form"><input id="goal-name" placeholder="Ex.: Reserva de emergência" required><input id="goal-target" inputmode="decimal" placeholder="Valor da meta" required><input id="goal-current" inputmode="decimal" placeholder="Já guardado"><button class="button button--primary">Criar meta</button></form>
+                <div class="goal-list" id="goal-list"></div>
+            </article>
+            <article class="panel operation-card">
+                <div class="panel__header"><div><p class="eyebrow mono">08 · RECORRÊNCIAS</p><h2>Movimentos mensais</h2></div></div>
+                <div class="recurring-list" id="recurring-list"></div>
+            </article>
+        </section>
+
         <section class="content-grid">
             <article class="panel transactions-panel" id="movimentos">
                 <div class="panel__header">
@@ -152,6 +169,7 @@
                 <label>Valor<input id="amount" name="amount" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00" required></label>
             </div>
             <label class="recurring-check"><input id="recurring" name="recurring" type="checkbox"> Repetir este lançamento todo mês</label>
+            <div class="form-row"><label>Conta ou cartão<select id="account" name="account" required></select></label><label>Parcelas<input id="installments" name="installments" type="number" min="1" value="1"></label></div>
             <label>Data<input id="date" name="date" type="date" required></label>
             <button class="button button--primary button--full" type="submit">Salvar lançamento</button>
             <button class="button button--secondary button--full" id="cancel-edit" type="button" hidden>Cancelar edição</button>
