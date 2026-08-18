@@ -122,3 +122,34 @@ body.light { color: #10213a; background: #f5f9ff; } body.light .promo-bar, body.
 body.light .operation-card, body.light .account-item, body.light .goal-item, body.light .recurring-item { color: #10213a; background: #fff; } body.light .operations-grid { border-color: #cbdcf3; background: #cbdcf3; } body.light .account-item, body.light .goal-item, body.light .recurring-item { border-color: #dce8f7; } body.light .account-icon, body.light .recurring-item > span, body.light .goal-item__actions button { color: #175ab4; border-color: #cbdcf3; background: #eef6ff; }
 @media (max-width: 980px) { .operations-grid { grid-template-columns: 1fr 1fr; }.operation-card:last-child { grid-column: 1 / -1; }.transaction-filters { min-width: 0; grid-template-columns: 1fr auto auto; }.transaction-filters input:nth-of-type(n+2) { display: none; } }
 @media (max-width: 760px) { .operations-grid { grid-template-columns: 1fr; border: 0; background: transparent; gap: 12px; }.operation-card:last-child { grid-column: auto; }.account-form, .goal-form { grid-template-columns: 1fr; }.account-form .button, .goal-form .button { min-height: 42px; }.transactions-panel .panel__header { display: grid; gap: 12px; }.transaction-filters { width: 100%; grid-template-columns: 1fr 1fr; }.transaction-filters input[type="search"] { grid-column: 1 / -1; }.transaction-filters input:nth-of-type(n+2) { display: block; }.transaction-filters select { width: 100%; }.transaction { gap: 8px; }.transaction__content span { line-height: 1.35; }.transaction__value { font-size: .78rem; } }
+
+/* Refinamento do dashboard e da lista de movimentações. */
+.summary { grid-template-columns: 1.65fr repeat(3, 1fr); }
+.balance-card, .metric { position: relative; overflow: hidden; transition: transform 180ms ease, background 180ms ease; }
+.metric::after { position: absolute; right: -26px; bottom: -30px; width: 96px; height: 96px; border: 1px solid rgba(59, 130, 246, .18); border-radius: 50%; content: ""; }
+.balance-card:hover, .metric:hover { transform: translateY(-2px); }
+.metric--savings .metric__icon { color: #93c5fd !important; background: #0c2756 !important; }
+.metric small { display: block; margin-top: 6px; color: #71849f; font-family: "Geist Mono", monospace; font-size: .58rem; line-height: 1.35; }
+.metric--savings strong { color: #bfdbfe; }
+.dashboard__header { background: linear-gradient(90deg, rgba(7, 21, 44, .78), transparent 68%); }
+.analytics-card { min-height: 284px; }
+.transactions { gap: 9px; }
+.transaction { min-height: 68px; padding: 11px 10px; border: 1px solid transparent; border-radius: 7px; background: rgba(7, 17, 31, .36); transition: border-color 160ms ease, transform 160ms ease, background 160ms ease; }
+.transaction:hover { border-color: #244778; background: #081526; transform: translateX(2px); }
+.transaction--income { border-left-color: rgba(56, 189, 248, .45); }
+.transaction--expense { border-left-color: rgba(129, 140, 248, .45); }
+.transaction__title { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.transaction__kind { flex: 0 0 auto; padding: 3px 5px; border: 1px solid #21436d; border-radius: 3px; color: #8ebfff; background: #07172c; font-family: "Geist Mono", monospace; font-size: .56rem; }
+.transaction--expense .transaction__kind { border-color: #35366a; color: #b8befd; background: #111538; }
+.transaction__details { display: block; margin-top: 5px; color: #8092aa !important; font-family: "Geist Mono", monospace; font-size: .62rem !important; }
+.transaction__details i { color: #3f5b7d; font-style: normal; }
+.transaction__actions { display: flex; align-items: center; gap: 3px; }
+.transaction__actions .edit-button, .transaction__actions .delete-button { margin-left: 0; }
+.transaction__actions .edit-button, .transaction__actions .delete-button { opacity: .72; transition: opacity 140ms ease, background 140ms ease; }
+.transaction:hover .edit-button, .transaction:hover .delete-button { opacity: 1; }
+body.light .dashboard__header { background: linear-gradient(90deg, #eef6ff, transparent 68%); } body.light .transaction { background: #fbfdff; } body.light .transaction:hover { border-color: #b7d5f8; background: #f1f7ff; } body.light .transaction__kind { border-color: #b7d5f8; color: #1d5caa; background: #eaf3ff; }
+@media (max-width: 1040px) { .summary { grid-template-columns: 1.5fr 1fr 1fr; }.metric--savings { grid-column: 2 / 4; min-height: 108px; }.metric--savings::after { right: 10%; } }
+@media (max-width: 760px) { .summary { grid-template-columns: 1fr 1fr; gap: 8px; }.balance-card { grid-column: 1 / -1; min-height: 172px; }.metric { min-height: 114px; padding: 16px; }.metric--savings { grid-column: 1 / -1; min-height: 96px; }.metric__icon { width: 34px; height: 34px; }.metric strong { font-size: .94rem; }.dashboard__charts { gap: 10px; }.analytics-card { min-height: 0; padding: 17px; }.trend-chart { min-height: 176px; }.radar-chart { height: 205px; }.transaction { align-items: flex-start; min-height: 74px; padding: 10px 8px; }.transaction__icon { width: 32px; height: 32px; }.transaction__content { align-self: center; }.transaction__title { display: block; }.transaction__kind { display: inline-block; margin-top: 4px; }.transaction__details { max-width: 180px; }.transaction__actions { align-self: stretch; flex-direction: column; justify-content: center; gap: 1px; }.transaction__value { margin-bottom: 2px; }.transaction__actions .edit-button, .transaction__actions .delete-button { padding: 3px 5px; font-size: .9rem; } }
+@media (max-width: 390px) { .summary { gap: 6px; }.balance-card { padding: 18px; }.metric { align-items: flex-start; flex-direction: column; gap: 8px; }.transaction__details { max-width: 145px; }.transaction__actions { min-width: 67px; }.transaction__value { font-size: .7rem; } }
+body { overflow-x: hidden; }
+@media (max-width: 760px) { .privacy { display: none; }.welcome { width: 100%; }.welcome__actions { display: grid; width: 100%; grid-template-columns: minmax(0, .95fr) minmax(0, 1.15fr); gap: 10px; }.welcome__actions .button, .welcome__actions .month-picker, .welcome__actions select { min-width: 0; width: 100%; }.welcome h1 { max-width: 100%; overflow-wrap: anywhere; } }
