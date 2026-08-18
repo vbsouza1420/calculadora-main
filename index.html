@@ -5,29 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#111827">
     <title>Meu Bolso</title>
-    <link rel="stylesheet" href="style.css?v=20260817-3">
-    <script src="script.js?v=20260817-4" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,500;0,600;0,700;0,800;1,600;1,700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=20260817-4">
+    <script src="script.js?v=20260817-5" defer></script>
 </head>
 <body>
     <main class="app">
         <header class="topbar">
             <a class="brand" href="#inicio" aria-label="Meu Bolso, início">
-                <span class="brand__icon">R$</span>
-                <span>Meu Bolso</span>
+                <span class="brand__wordmark">MEU BOLSO<span class="brand__cursor">_</span></span>
             </a>
-            <p class="privacy">Seus dados ficam neste dispositivo</p>
+            <nav class="app-nav" aria-label="Navegação principal"><a href="#dashboard">PAINEL</a><a href="#movimentos">MOVIMENTOS</a><a href="#insights">LEITURA</a></nav>
+            <p class="privacy">DADOS LOCAIS <i></i> ONLINE</p>
         </header>
 
         <section class="welcome" id="inicio">
             <div>
-                <p class="eyebrow" id="current-month"></p>
-                <h1>Seu dinheiro,<br><span>sob controle.</span></h1>
+                <p class="eyebrow mono">FINANÇAS PESSOAIS · <span id="current-month"></span></p>
+                <h1>Dinheiro em<br><em>movimento.</em></h1>
             </div>
             <div class="welcome__actions">
                 <label class="month-picker">Mês selecionado
                     <select id="month-filter" aria-label="Selecionar mês"></select>
                 </label>
-                <button class="button button--primary" type="button" id="new-transaction">+ Novo lançamento</button>
+                <button class="button button--primary" type="button" id="new-transaction">Registrar movimento <span>↗</span></button>
             </div>
         </section>
 
@@ -73,9 +76,9 @@
         </section>
 
         <section class="content-grid">
-            <article class="panel transactions-panel">
+            <article class="panel transactions-panel" id="movimentos">
                 <div class="panel__header">
-                    <div><h2>Últimos lançamentos</h2><p>Organize cada entrada e saída.</p></div>
+                    <div><p class="eyebrow mono">02 · MOVIMENTOS</p><h2>Últimos lançamentos</h2><p>Organize cada entrada e saída.</p></div>
                     <select id="transaction-filter" aria-label="Filtrar lançamentos">
                         <option value="all">Todos</option>
                         <option value="income">Entradas</option>
@@ -91,8 +94,8 @@
                 </div>
             </article>
 
-            <aside class="panel insights-panel">
-                <div class="panel__header"><div><h2>Despesas por categoria</h2><p id="chart-subtitle">Visão do período selecionado.</p></div></div>
+            <aside class="panel insights-panel" id="insights">
+                <div class="panel__header"><div><p class="eyebrow mono">03 · LEITURA</p><h2>Despesas por categoria</h2><p id="chart-subtitle">Visão do período selecionado.</p></div></div>
                 <p class="chart-highlight" id="chart-highlight" hidden></p>
                 <div class="chart" id="category-chart"></div>
                 <p class="chart-empty" id="chart-empty">As categorias aparecerão aqui.</p>
