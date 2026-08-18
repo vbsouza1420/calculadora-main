@@ -44,9 +44,6 @@ const authForm = document.querySelector("#auth-form");
 const authEmail = document.querySelector("#auth-email");
 const authPassword = document.querySelector("#auth-password");
 const authFeedback = document.querySelector("#auth-feedback");
-const smsSettings = document.querySelector("#sms-settings");
-const smsPhone = document.querySelector("#sms-phone");
-const smsConsent = document.querySelector("#sms-consent");
 
 const categories = {
     expense: ["Alimentação", "Moradia", "Transporte", "Lazer", "Saúde", "Assinaturas", "Outros"],
@@ -119,20 +116,15 @@ async function loadCloudData() {
     if (error) { setCloudStatus("ERRO NA NUVEM"); return; }
     if (data?.payload && Object.keys(data.payload).length) applyCloudPayload(data.payload); else await pushCloudData();
 }
-function formatPhoneE164(value) { const digits = String(value).replace(/\D/g, ""); if (!digits) return ""; return `+${digits.startsWith("55") ? digits : `55${digits}`}`; }
-async function loadProfile() {
-    const { data } = await cloudClient.from("profiles").select("phone,sms_enabled").eq("id", currentUser.id).maybeSingle();
-    smsPhone.value = data?.phone || ""; smsConsent.checked = Boolean(data?.sms_enabled); smsSettings.hidden = false;
-}
 function updateAuthUI() {
     const action = document.querySelector("#cloud-account-action"), button = document.querySelector("#auth-button"), userBox = document.querySelector("#cloud-user");
     if (currentUser) { button.textContent = "SAIR"; action.textContent = "Sair desta conta"; userBox.innerHTML = `<span>●</span><div><strong>${currentUser.email}</strong><small>Sincronização automática ativada.</small></div>`; setCloudStatus("SALVO NA NUVEM", true); }
-    else { button.textContent = "ENTRAR"; action.textContent = "Entrar ou criar conta"; userBox.innerHTML = "<span>○</span><div><strong>Modo local</strong><small>Os dados estão somente neste navegador.</small></div>"; smsSettings.hidden = true; setCloudStatus("DADOS LOCAIS"); }
+    else { button.textContent = "ENTRAR"; action.textContent = "Entrar ou criar conta"; userBox.innerHTML = "<span>○</span><div><strong>Modo local</strong><small>Os dados estão somente neste navegador.</small></div>"; setCloudStatus("DADOS LOCAIS"); }
 }
 async function initializeCloud() {
     if (!cloudClient) { setCloudStatus("NUVEM INDISPONÍVEL"); return; }
-    const { data } = await cloudClient.auth.getSession(); currentUser = data.session?.user || null; updateAuthUI(); if (currentUser) { await loadCloudData(); await loadProfile(); }
-    cloudClient.auth.onAuthStateChange((_event, session) => { setTimeout(async () => { currentUser = session?.user || null; updateAuthUI(); if (currentUser) { await loadCloudData(); await loadProfile(); } }, 0); });
+    const { data } = await cloudClient.auth.getSession(); currentUser = data.session?.user || null; updateAuthUI(); if (currentUser) await loadCloudData();
+    cloudClient.auth.onAuthStateChange((_event, session) => { setTimeout(async () => { currentUser = session?.user || null; updateAuthUI(); if (currentUser) await loadCloudData(); }, 0); });
 }
 
 function setupAdvancedFilters() {
@@ -312,7 +304,6 @@ async function handleAccountAction() { if (currentUser) await cloudClient.auth.s
 document.querySelector("#auth-button").addEventListener("click", handleAccountAction); document.querySelector("#cloud-account-action").addEventListener("click", handleAccountAction); document.querySelector("#close-auth").addEventListener("click", () => authModal.close());
 authForm.addEventListener("submit", async (event) => { event.preventDefault(); authFeedback.textContent = "Entrando..."; const { error } = await cloudClient.auth.signInWithPassword({ email: authEmail.value.trim(), password: authPassword.value }); if (error) { authFeedback.textContent = error.message === "Invalid login credentials" ? "E-mail ou senha incorretos." : error.message; return; } authFeedback.textContent = "Conta conectada."; authModal.close(); authForm.reset(); });
 document.querySelector("#auth-signup").addEventListener("click", async () => { if (!authForm.reportValidity()) return; authFeedback.textContent = "Criando conta..."; const { data, error } = await cloudClient.auth.signUp({ email: authEmail.value.trim(), password: authPassword.value, options: { emailRedirectTo: "https://vbsouza1420.github.io/calculadora-main/" } }); if (error) { authFeedback.textContent = error.message; return; } authFeedback.textContent = data.session ? "Conta criada e conectada." : "Conta criada. Confirme o link enviado ao seu e-mail."; if (data.session) authModal.close(); });
-smsSettings.addEventListener("submit", async (event) => { event.preventDefault(); const feedback = document.querySelector("#sms-feedback"), phone = formatPhoneE164(smsPhone.value); if (!/^\+[1-9]\d{7,14}$/.test(phone)) { feedback.textContent = "Informe um telefone válido com DDD."; return; } feedback.textContent = "Salvando..."; const enabled = smsConsent.checked; const { error } = await cloudClient.from("profiles").update({ phone, sms_enabled: enabled, sms_consent_at: enabled ? new Date().toISOString() : null, updated_at: new Date().toISOString() }).eq("id", currentUser.id); feedback.textContent = error ? `Não foi possível salvar: ${error.message}` : enabled ? "Alertas autorizados. O envio será ativado após configurar a Twilio." : "Telefone salvo com alertas desativados."; });
 document.querySelector("#theme-toggle").addEventListener("click", () => { document.body.classList.toggle("light"); localStorage.setItem(keys.theme, document.body.classList.contains("light") ? "light" : "dark"); });
 if (localStorage.getItem(keys.theme) === "light") document.body.classList.add("light");
 transactions = transactions.map((item) => ({ ...item, accountId: item.accountId || "bank" }));

@@ -15,6 +15,3 @@ otp_length = 8
 [auth.mfa.totp]
 enroll_enabled = true
 verify_enabled = true
-
-[functions.send-finance-alerts]
-verify_jwt = false
